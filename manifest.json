@@ -1,47 +1,16 @@
 {
   "name": "MakerMind",
   "short_name": "MakerMind",
-  "description": "Your AI-powered project brain for makers and builders",
-  "start_url": "/makermind/",
-  "scope": "/makermind/",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#0a0a0f",
-  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/makermind/icons/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/makermind/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/makermind/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/makermind/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "categories": ["productivity", "utilities"],
-  "shortcuts": [
-    {
-      "name": "New Idea",
-      "short_name": "New",
-      "description": "Capture a new idea",
-      "url": "/makermind/?new=1",
-      "icons": [{ "src": "/makermind/icons/icon-192.png", "sizes": "192x192" }]
+      "purpose": "any maskable"
     }
   ]
 }
