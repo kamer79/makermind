@@ -76,3 +76,14 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 - About page footer updated to "AI-powered" (engine-agnostic)
 - PWA install prompt now appears correctly on Android Chrome (manifest fix)
 - App icon updated to official Lab Nextdoor puzzle mark
+
+---
+
+## [v1.5.0] — 2025-06-08
+### Added
+- Live info ticker at the top of the home screen
+- Smooth continuous scroll with color-coded message types (tip, feature, version, motto, use, ai, community)
+- Ticker content fetched from ticker.json on GitHub — update messages without an app release
+- Falls back to cached messages offline, then built-in fallback if no cache
+- Tappable messages — version/feature taps open About, AI taps open Settings, community taps open links
+- ticker.json file — edit on GitHub anytime to push new tips, announcements or feature hints to all users
