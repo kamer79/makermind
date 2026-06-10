@@ -222,6 +222,16 @@
     .about-footer{text-align:center;padding:0 24px 10px;font-size:11px;color:var(--text3);line-height:1.8;}
 
 
+
+    /* TICKER */
+    #ticker-bar { position:relative; background:#0a0a0f; border-bottom:1px solid var(--border); height:28px; overflow:hidden; flex-shrink:0; cursor:pointer; user-select:none; }
+    #ticker-track { display:flex; align-items:center; height:100%; white-space:nowrap; animation:ticker-scroll 60s linear infinite; }
+    #ticker-bar:hover #ticker-track { animation-play-state:paused; }
+    @keyframes ticker-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .ticker-item { display:inline-flex; align-items:center; gap:6px; padding:0 28px; font-size:11px; font-weight:500; letter-spacing:0.02em; }
+    .ticker-sep { color:#252b3d; font-size:10px; padding:0 4px; }
+    .ticker-icon { font-size:12px; flex-shrink:0; }
+
     /* UPDATE MODAL */
     .update-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;}
     .update-overlay.open{opacity:1;pointer-events:all;}
@@ -250,6 +260,9 @@
 
 <!-- HOME VIEW -->
 <div class="view active" id="v-home">
+  <div id="ticker-bar" onclick="handleTickerTap(event)">
+    <div id="ticker-track"></div>
+  </div>
   <div id="v-home-header">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div>
@@ -361,7 +374,7 @@
       <div class="about-app-name">MakerMind</div>
       <div class="about-motto">Build. Break. Learn.</div>
       <div class="about-tagline">Your AI-powered project brain — capture ideas, build plans, execute with clarity.</div>
-      <div class="about-version">v1.4.0 · PWA</div>
+      <div class="about-version">v1.5.0 · PWA</div>
       <div style="margin-top:12px;"><button onclick="checkForUpdate()" style="background:transparent;color:var(--amber);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">↻ Check for Update</button></div>
     </div>
     <div class="about-body">
@@ -623,6 +636,7 @@ function switchView(v){
 function init(){
   load();
   renderFilters(); renderCards(); populateSelects(); initVoice();
+  initTicker();
   updateAIButton();
   if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
@@ -1053,10 +1067,106 @@ function clearAllIdeas(){if(!confirm(`Delete all ${ideas.length} idea(s)? This c
 function resetDefaults(){if(!confirm("Restore defaults? Your ideas are kept."))return;categories=JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));statuses=JSON.parse(JSON.stringify(DEFAULT_STATUSES));persist();renderSettings();renderFilters();populateSelects();showToast("Defaults restored");}
 
 
+
+// ── TICKER ─────────────────────────────────────────────────
+const TICKER_URL      = "https://kamer79.github.io/makermind/ticker.json";
+const TICKER_CACHE_KEY= "mm-ticker-v1";
+
+const TYPE_CONFIG = {
+  tip:       { color:"#3b82f6", icon:"💡" },
+  feature:   { color:"#8b5cf6", icon:"✦"  },
+  version:   { color:"#f59e0b", icon:"🆕" },
+  motto:     { color:"#f59e0b", icon:"🔧" },
+  use:       { color:"#10b981", icon:"🛠" },
+  ai:        { color:"#8b5cf6", icon:"⚡" },
+  community: { color:"#ec4899", icon:"⭐" },
+};
+
+const FALLBACK_TICKER = [
+  { type:"motto",   text:"Build. Break. Learn." },
+  { type:"tip",     text:"Use voice input to capture ideas hands-free" },
+  { type:"feature", text:"Free on-device AI now available — no account needed" },
+  { type:"use",     text:"Great for ESP32 projects, smart home automations & sourcing lists" },
+  { type:"version", text:"MakerMind v1.4.0 — tap for what's new" },
+  { type:"ai",      text:"Powered by free on-device AI or Claude API — your choice" },
+];
+
+let tickerItems = [];
+let tickerTapTargets = []; // store tap actions per item index
+
+async function initTicker(){
+  // Try to load from network first
+  try {
+    const res  = await fetch(TICKER_URL + "?t=" + Date.now());
+    const data = await res.json();
+    if(Array.isArray(data) && data.length){ 
+      tickerItems = data;
+      localStorage.setItem(TICKER_CACHE_KEY, JSON.stringify(data));
+    }
+  } catch(_) {
+    // Try cached version
+    try { tickerItems = JSON.parse(localStorage.getItem(TICKER_CACHE_KEY))||[]; } catch(_){}
+  }
+  if(!tickerItems.length) tickerItems = FALLBACK_TICKER;
+  renderTicker();
+}
+
+function renderTicker(){
+  const track = document.getElementById("ticker-track");
+  if(!track) return;
+  tickerTapTargets = [];
+
+  // Build items × 2 for seamless loop
+  let html = "";
+  const allItems = [...tickerItems, ...tickerItems];
+  allItems.forEach((item, idx) => {
+    const cfg   = TYPE_CONFIG[item.type] || TYPE_CONFIG.tip;
+    const dataIdx = idx % tickerItems.length;
+    html += `<span class="ticker-item" data-idx="${dataIdx}" style="color:${cfg.color}">
+      <span class="ticker-icon">${cfg.icon}</span>
+      <span>${item.text}</span>
+    </span>
+    <span class="ticker-sep">·····</span>`;
+  });
+  track.innerHTML = html;
+
+  // Adjust animation duration based on content length
+  const totalChars = tickerItems.reduce((a,i)=>a+i.text.length,0);
+  const duration   = Math.max(40, Math.min(90, totalChars * 0.35));
+  track.style.animation = `ticker-scroll ${duration}s linear infinite`;
+}
+
+function handleTickerTap(e){
+  const item = e.target.closest(".ticker-item");
+  if(!item) return;
+  const idx  = parseInt(item.dataset.idx);
+  const data = tickerItems[idx];
+  if(!data) return;
+
+  switch(data.type){
+    case "version":
+    case "feature":
+      switchView("about"); break;
+    case "ai":
+      switchView("settings"); break;
+    case "community":
+      if(data.text.includes("github"))
+        window.open("https://github.com/kamer79","_blank");
+      else if(data.text.includes("paypal"))
+        window.open("https://paypal.me/KarimAmer914","_blank");
+      break;
+    default: break; // tips, motto, use — read only
+  }
+}
+
 // ── VERSION & UPDATE ───────────────────────────────────────
-const APP_VERSION = "1.4.0";
+const APP_VERSION = "1.5.0";
 
 const VERSION_NOTES = {
+  "1.5.0": [
+    "Live info ticker with tips, features & announcements",
+    "Ticker content updatable from server without app release"
+  ],
   "1.4.0": [
     "Free on-device AI — no account needed",
     "AI engine chooser (Free vs Claude API)",
