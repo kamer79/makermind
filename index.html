@@ -221,6 +221,26 @@
     .about-feature-sub{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.5;}
     .about-footer{text-align:center;padding:0 24px 10px;font-size:11px;color:var(--text3);line-height:1.8;}
 
+
+    /* UPDATE MODAL */
+    .update-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+    .update-overlay.open{opacity:1;pointer-events:all;}
+    .update-sheet{background:var(--surface);border:1px solid var(--border2);border-radius:24px 24px 0 0;width:100%;max-width:640px;padding:22px 22px 40px;transform:translateY(60px);transition:transform 0.3s cubic-bezier(0.34,1.4,0.64,1);}
+    .update-overlay.open .update-sheet{transform:translateY(0);}
+    .update-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
+    .update-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--amber);font-weight:700;letter-spacing:0.06em;margin-bottom:12px;}
+    .update-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:6px;}
+    .update-sub{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6;}
+    .update-whatsnew{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:18px;}
+    .update-whatsnew-title{font-size:10px;color:var(--amber);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+    .update-item{font-size:13px;color:var(--text2);margin-bottom:7px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
+    .update-item:last-child{margin-bottom:0;}
+    .update-item-dot{color:var(--amber);flex-shrink:0;margin-top:1px;}
+    .update-actions{display:flex;gap:10px;}
+    .btn-update{flex:1;background:var(--amber);color:#0a0a0f;font-weight:700;border-radius:12px;padding:13px 20px;font-size:14px;border:none;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+    .btn-update:hover{background:#fbbf24;}
+    .btn-later{background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:12px;padding:13px 20px;font-size:13px;cursor:pointer;font-family:inherit;}
+
     /* TOAST */
     .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1f2e;border:1px solid var(--border2);border-radius:10px;padding:9px 16px;font-size:13px;color:var(--text2);z-index:999;opacity:0;transition:all 0.25s;white-space:nowrap;pointer-events:none;}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -342,6 +362,7 @@
       <div class="about-motto">Build. Break. Learn.</div>
       <div class="about-tagline">Your AI-powered project brain — capture ideas, build plans, execute with clarity.</div>
       <div class="about-version">v1.4.0 · PWA</div>
+      <div style="margin-top:12px;"><button onclick="checkForUpdate()" style="background:transparent;color:var(--amber);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">↻ Check for Update</button></div>
     </div>
     <div class="about-body">
       <!-- What's New -->
@@ -512,6 +533,25 @@
       </div>
     </div>
     <button class="btn-primary" id="chooser-confirm" onclick="confirmChooser()" style="width:100%;margin-top:16px;">Confirm →</button>
+  </div>
+</div>
+
+
+<!-- UPDATE MODAL -->
+<div class="update-overlay" id="update-overlay">
+  <div class="update-sheet">
+    <div class="update-handle"></div>
+    <div class="update-badge">✦ Update Available</div>
+    <div class="update-title">MakerMind <span id="update-version"></span> is ready</div>
+    <div class="update-sub">A new version has been downloaded and is ready to install. Your ideas and settings are safe.</div>
+    <div class="update-whatsnew">
+      <div class="update-whatsnew-title">What's new</div>
+      <div id="update-whats-new"></div>
+    </div>
+    <div class="update-actions">
+      <button class="btn-later" onclick="dismissUpdate()">Later</button>
+      <button class="btn-update" onclick="applyUpdate()">Update Now →</button>
+    </div>
   </div>
 </div>
 
@@ -1011,6 +1051,65 @@ function moveStat(i,dir){const j=i+dir;if(j<0||j>=statuses.length)return;[status
 function deleteStat(id){const n=ideas.filter(i=>i.status===id).length;if(n&&!confirm(`${n} idea(s) use this status. Delete anyway?`))return;statuses=statuses.filter(s=>s.id!==id);persist();renderStatusList();renderFilters();populateSelects();showToast("Status removed");}
 function clearAllIdeas(){if(!confirm(`Delete all ${ideas.length} idea(s)? This cannot be undone.`))return;ideas=[];persist();renderFilters();renderCards();showToast("All ideas cleared");}
 function resetDefaults(){if(!confirm("Restore defaults? Your ideas are kept."))return;categories=JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));statuses=JSON.parse(JSON.stringify(DEFAULT_STATUSES));persist();renderSettings();renderFilters();populateSelects();showToast("Defaults restored");}
+
+
+// ── VERSION & UPDATE ───────────────────────────────────────
+const APP_VERSION = "1.4.0";
+
+const VERSION_NOTES = {
+  "1.4.0": [
+    "Free on-device AI — no account needed",
+    "AI engine chooser (Free vs Claude API)",
+    "Claude API key stored on your device only",
+    "PWA install prompt now works correctly"
+  ],
+  "1.3.0": [
+    "Inline rename for categories & statuses",
+    "About page with Lab Nextdoor branding",
+    "PayPal support button",
+    "Clear all ideas option"
+  ]
+};
+
+function showUpdateModal(version){
+  document.getElementById("update-version").textContent = "v" + version;
+  const notes = VERSION_NOTES[version] || ["Bug fixes and improvements"];
+  document.getElementById("update-whats-new").innerHTML = notes
+    .map(n => `<div class="update-item"><span class="update-item-dot">◈</span><span>${n}</span></div>`)
+    .join("");
+  document.getElementById("update-overlay").classList.add("open");
+}
+
+function dismissUpdate(){
+  document.getElementById("update-overlay").classList.remove("open");
+  showToast("Tap 'Check for Update' in About anytime");
+}
+
+function applyUpdate(){
+  document.getElementById("update-overlay").classList.remove("open");
+  showToast("Updating…");
+  setTimeout(() => window.location.reload(true), 600);
+}
+
+function checkForUpdate(){
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if(reg) reg.update().then(() => showToast("Checking for updates…"));
+    });
+  }
+}
+
+// Listen for new version message from service worker
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.addEventListener("message", e => {
+    if(e.data?.type === "NEW_VERSION"){
+      const newVer = e.data.version;
+      if(newVer !== APP_VERSION){
+        setTimeout(() => showUpdateModal(newVer), 1500);
+      }
+    }
+  });
+}
 
 // ── TOAST ──────────────────────────────────────────────────
 function showToast(msg){
