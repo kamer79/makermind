@@ -1,4 +1,4 @@
-const CACHE = "makermind-v1.3.0";
+const CACHE = "makermind-v1.4.0";
 const ASSETS = [
   "/",
   "/index.html",
