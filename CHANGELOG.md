@@ -68,7 +68,11 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 - Claude API key input in Settings — stored only on-device, never in source code
 - Honest speed/quality warning shown when Free AI is selected
 - "Expand" button label and subtitle reflect active engine dynamically
+- In-app update notification — bottom sheet shows what's new when a new version is available
+- "Update Now" applies update instantly, "Later" dismisses until ready
+- "Check for Update" button in About page for manual trigger
 
 ### Changed
 - About page footer updated to "AI-powered" (engine-agnostic)
 - PWA install prompt now appears correctly on Android Chrome (manifest fix)
+- App icon updated to official Lab Nextdoor puzzle mark
