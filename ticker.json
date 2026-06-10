@@ -1,0 +1,20 @@
+[
+  { "type": "tip",       "text": "Use voice input to capture ideas hands-free — tap 🎙 on any field" },
+  { "type": "feature",   "text": "Try the AI engine chooser — free on-device AI now available" },
+  { "type": "motto",     "text": "Build. Break. Learn." },
+  { "type": "version",   "text": "MakerMind v1.4.0 — Free AI engine & in-app update notifications" },
+  { "type": "tip",       "text": "Add tags to your ideas for faster filtering and searching" },
+  { "type": "use",       "text": "Great for ESP32 projects, smart home automations & sourcing lists" },
+  { "type": "ai",        "text": "Powered by free on-device AI or Claude API — your choice, your device" },
+  { "type": "tip",       "text": "Tap any card to edit, expand with AI, or update its status" },
+  { "type": "feature",   "text": "Customise your categories and statuses in Settings to fit your workflow" },
+  { "type": "use",       "text": "Perfect for homelab builders, makers, engineers and DIY enthusiasts" },
+  { "type": "community", "text": "Enjoying MakerMind? Star us on GitHub — github.com/kamer79" },
+  { "type": "tip",       "text": "Voice notes work best in a quiet environment with Chrome on Android" },
+  { "type": "motto",     "text": "Every great build starts with a captured idea" },
+  { "type": "ai",        "text": "Claude API gives faster, higher quality expansions — add your key in Settings" },
+  { "type": "use",       "text": "Track ideas from spark to execution — Idea, Planning, In Progress, Done" },
+  { "type": "community", "text": "Support the project — paypal.me/KarimAmer914 ☕" },
+  { "type": "tip",       "text": "Rename any category or status inline — tap ✎ in Settings" },
+  { "type": "feature",   "text": "New version? Update instantly from within the app — no app store needed" }
+]
