@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MakerMind</title>
-  <meta name="description" content="Your AI-powered project brain for makers and builders" />
+  <meta name="description" content="AI Project Copilot for Makers and Builders" />
   <meta name="theme-color" content="#0a0a0f" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
       --bg:#0a0a0f; --surface:#0f1117; --surface2:#13151e; --surface3:#1a1f2e;
       --border:#1a1f2e; --border2:#252b3d;
@@ -25,186 +25,1183 @@
       --amber:#f59e0b; --blue:#3b82f6; --green:#10b981;
       --pink:#ec4899; --purple:#8b5cf6; --red:#ef4444;
     }
-    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overscroll-behavior:none;}
-    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#252b3d;border-radius:2px}
-    .view{display:none;flex-direction:column;height:100vh;overflow:hidden;}
-    .view.active{display:flex;}
+    html,body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overscroll-behavior:none; }
+    ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:#252b3d;border-radius:2px}
+    .view { display:none; flex-direction:column; height:100vh; overflow:hidden; }
+    .view.active { display:flex; }
 
     /* NAV */
-    #bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
-    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 8px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:inherit;font-size:10px;font-weight:500;gap:4px;transition:color 0.15s;letter-spacing:0.04em;}
-    .nav-item .nav-icon{font-size:20px;line-height:1;}
-    .nav-item.active{color:var(--amber);}
-    #fab{position:fixed;bottom:70px;right:20px;z-index:99;}
-    .fab{width:54px;height:54px;border-radius:16px;background:var(--amber);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;color:#0a0a0f;box-shadow:0 4px 20px rgba(245,158,11,0.4);transition:transform 0.15s;font-weight:300;line-height:1;}
-    .fab:active{transform:scale(0.93);}
+    #bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--border); display:flex; z-index:100; padding-bottom:env(safe-area-inset-bottom); }
+    .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 0 8px; cursor:pointer; border:none; background:transparent; color:var(--text3); font-family:inherit; font-size:10px; font-weight:500; gap:4px; transition:color 0.15s; letter-spacing:0.04em; }
+    .nav-item .nav-icon { font-size:20px; line-height:1; }
+    .nav-item.active { color:var(--amber); }
+    #fab { position:fixed; bottom:70px; right:20px; z-index:99; }
+    .fab { width:54px; height:54px; border-radius:16px; background:var(--amber); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:24px; color:#0a0a0f; box-shadow:0 4px 20px rgba(245,158,11,0.4); transition:transform 0.15s; font-weight:300; line-height:1; }
+    .fab:active { transform:scale(0.93); }
+
+    /* TICKER */
+    #ticker-bar { position:relative; background:#0a0a0f; border-bottom:1px solid var(--border); height:28px; overflow:hidden; flex-shrink:0; cursor:pointer; user-select:none; }
+    #ticker-track { display:flex; align-items:center; height:100%; white-space:nowrap; animation:ticker-scroll 60s linear infinite; }
+    #ticker-bar:hover #ticker-track { animation-play-state:paused; }
+    @keyframes ticker-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .ticker-item { display:inline-flex; align-items:center; gap:6px; padding:0 28px; font-size:11px; font-weight:500; letter-spacing:0.02em; }
+    .ticker-sep { color:#252b3d; font-size:10px; padding:0 4px; }
 
     /* HOME */
-    #v-home-header{padding:20px 20px 0;flex-shrink:0;}
-    #v-home-filters{padding:12px 20px 0;flex-shrink:0;}
-    #v-home-grid{flex:1;overflow-y:auto;padding:12px 20px 140px;}
-    .app-label{font-size:10px;letter-spacing:0.18em;color:var(--amber);font-weight:600;text-transform:uppercase;margin-bottom:4px;}
-    .app-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;color:#f1f5f9;line-height:1;}
-    .app-subtitle{font-size:12px;color:var(--text3);margin-top:3px;}
-    .search-wrap{position:relative;margin-top:14px;}
-    .search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px;pointer-events:none;}
-    .search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px 10px 36px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border 0.2s;}
-    .search-input:focus{border-color:var(--amber);}
-    .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
-    .filter-row::-webkit-scrollbar{display:none;}
-    .fpill{flex-shrink:0;background:transparent;border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap;}
-    .fpill.active{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,0.09);}
-    .count-badge{display:inline-block;background:var(--border);color:var(--text3);border-radius:20px;padding:0 5px;font-size:9px;margin-left:3px;}
-    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:11px;}
-    .empty-state{grid-column:1/-1;text-align:center;padding:60px 0;}
-    .empty-icon{font-size:36px;margin-bottom:12px;opacity:0.25;}
-    .empty-title{font-family:'Syne',sans-serif;font-size:17px;color:var(--text3);}
-    .empty-sub{font-size:12px;color:#374151;margin-top:5px;}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:15px 16px;cursor:pointer;transition:border-color 0.2s,transform 0.15s;position:relative;overflow:hidden;}
-    .card:active{transform:scale(0.98);}
-    .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;}
-    .card-body{margin-left:10px;}
-    .card-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px;}
-    .cat-label{font-size:11px;font-weight:600;}
-    .status-pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.03em;}
-    .card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#f1f5f9;line-height:1.3;}
-    .card-notes{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.6;}
-    .card-ai-badge{font-size:10px;color:var(--blue);margin-top:5px;}
-    .card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
-    .tag{background:var(--border);color:var(--text3);border-radius:6px;padding:2px 6px;font-size:10px;}
+    #v-home-header { padding:20px 20px 0; flex-shrink:0; }
+    #v-home-filters { padding:12px 20px 0; flex-shrink:0; }
+    #v-home-grid { flex:1; overflow-y:auto; padding:12px 20px 140px; }
+    .app-label { font-size:10px; letter-spacing:0.18em; color:var(--amber); font-weight:600; text-transform:uppercase; margin-bottom:4px; }
+    .app-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; letter-spacing:-0.02em; color:#f1f5f9; line-height:1; }
+    .app-subtitle { font-size:12px; color:var(--text3); margin-top:3px; }
+    .search-wrap { position:relative; margin-top:14px; }
+    .search-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:15px; pointer-events:none; }
+    .search-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:10px 14px 10px 36px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border 0.2s; }
+    .search-input:focus { border-color:var(--amber); }
+    .filter-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+    .filter-row::-webkit-scrollbar { display:none; }
+    .fpill { flex-shrink:0; background:transparent; border:1px solid var(--border); border-radius:20px; padding:5px 13px; font-size:11px; font-weight:500; color:var(--text3); cursor:pointer; font-family:inherit; transition:all 0.15s; white-space:nowrap; }
+    .fpill.active { border-color:var(--amber); color:var(--amber); background:rgba(245,158,11,0.09); }
+    .count-badge { display:inline-block; background:var(--border); color:var(--text3); border-radius:20px; padding:0 5px; font-size:9px; margin-left:3px; }
+    .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+    .empty-state { grid-column:1/-1; text-align:center; padding:60px 0; }
+    .empty-icon { font-size:36px; margin-bottom:12px; opacity:0.25; }
+    .empty-title { font-family:'Syne',sans-serif; font-size:17px; color:var(--text3); }
+    .empty-sub { font-size:12px; color:#374151; margin-top:5px; }
+
+    /* PROJECT CARD */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:15px 16px; cursor:pointer; transition:border-color 0.2s,transform 0.15s; position:relative; overflow:hidden; }
+    .card:active { transform:scale(0.98); }
+    .card-accent { position:absolute; top:0; left:0; width:3px; height:100%; }
+    .card-body { margin-left:10px; }
+    .card-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:7px; }
+    .cat-label { font-size:11px; font-weight:600; }
+    .status-pill { display:inline-block; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; }
+    .card-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#f1f5f9; line-height:1.3; }
+    .card-notes { font-size:12px; color:var(--text3); margin-top:6px; line-height:1.6; }
+    .card-blueprint-badge { font-size:10px; color:var(--blue); margin-top:5px; display:flex; align-items:center; gap:4px; }
+    .card-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+    .tag { background:var(--border); color:var(--text3); border-radius:6px; padding:2px 6px; font-size:10px; }
 
     /* MODAL */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;}
-    .overlay.open{opacity:1;pointer-events:all;}
-    .modal{background:var(--surface);border:1px solid var(--border2);border-radius:24px 24px 0 0;width:100%;max-width:640px;max-height:93vh;overflow-y:auto;padding:20px 20px 44px;transform:translateY(50px);transition:transform 0.25s cubic-bezier(0.34,1.4,0.64,1);}
-    .overlay.open .modal{transform:translateY(0);}
-    .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-    .modal-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#f1f5f9;}
-    .close-btn{background:var(--border);border:none;color:var(--text3);width:28px;height:28px;border-radius:8px;font-size:14px;cursor:pointer;}
-    .form-group{margin-bottom:15px;}
-    .form-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.09em;text-transform:uppercase;display:block;margin-bottom:6px;}
-    .form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border 0.2s;}
-    .form-input:focus{border-color:var(--amber);}
-    textarea.form-input{resize:vertical;min-height:78px;line-height:1.6;}
-    select.form-input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;}
-    select.form-input option{background:#111827;}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
-    .voice-wrap{position:relative;}
-    .voice-btn{position:absolute;right:9px;top:50%;transform:translateY(-50%);background:var(--border);border:none;border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:14px;transition:all 0.15s;}
-    .voice-btn.listening{background:rgba(239,68,68,0.2);color:var(--red);animation:pulse 1s infinite;}
-    .notes-voice-wrap{position:relative;}
-    .notes-voice-btn{position:absolute;right:9px;bottom:9px;background:var(--border);border:none;border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:14px;}
-    .notes-voice-btn.listening{background:rgba(239,68,68,0.2);color:var(--red);animation:pulse 1s infinite;}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.45}}
-    .voice-input-field{padding-right:48px!important;}
-    .notes-padded{padding-bottom:42px!important;}
-    .ai-section{border-top:1px solid var(--border);padding-top:16px;margin-top:4px;}
-    .ai-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;}
-    .ai-section-title{font-size:13px;color:#f1f5f9;font-weight:600;}
-    .ai-section-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-    .btn-ai{background:linear-gradient(135deg,var(--blue),var(--purple));color:white;font-weight:600;border-radius:10px;padding:9px 15px;font-size:12px;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;}
-    .btn-ai:disabled{opacity:0.45;cursor:not-allowed;}
-    .btn-ai.free-mode{background:linear-gradient(135deg,var(--green),#059669);}
-    .ai-output{background:#050810;border:1px solid #1e3a5f;border-radius:11px;padding:13px;margin-top:10px;white-space:pre-wrap;font-size:12px;line-height:1.8;color:#93c5fd;max-height:260px;overflow-y:auto;}
-    .shimmer-wrap{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
-    .shimmer{background:linear-gradient(90deg,var(--border) 25%,var(--border2) 50%,var(--border) 75%);background-size:200%;animation:shimmer 1.5s infinite;border-radius:5px;height:11px;}
-    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    .modal-footer{display:flex;gap:9px;margin-top:22px;align-items:center;}
-    .btn-primary{background:var(--amber);color:#0a0a0f;font-weight:700;border-radius:10px;padding:11px 20px;font-size:13px;border:none;cursor:pointer;font-family:inherit;}
-    .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
-    .btn-ghost{background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:10px;padding:11px 15px;font-size:13px;cursor:pointer;font-family:inherit;}
-    .btn-delete{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:11px 13px;font-size:12px;cursor:pointer;font-family:inherit;margin-right:auto;}
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.82); backdrop-filter:blur(6px); z-index:300; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+    .overlay.open { opacity:1; pointer-events:all; }
+    .modal { background:var(--surface); border:1px solid var(--border2); border-radius:24px 24px 0 0; width:100%; max-width:640px; max-height:93vh; overflow-y:auto; padding:20px 20px 44px; transform:translateY(50px); transition:transform 0.25s cubic-bezier(0.34,1.4,0.64,1); }
+    .overlay.open .modal { transform:translateY(0); }
+    .modal-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 18px; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .modal-title { font-family:'Syne',sans-serif; font-size:19px; font-weight:800; color:#f1f5f9; }
+    .close-btn { background:var(--border); border:none; color:var(--text3); width:28px; height:28px; border-radius:8px; font-size:14px; cursor:pointer; }
+    .form-group { margin-bottom:15px; }
+    .form-label { font-size:10px; color:var(--text3); font-weight:600; letter-spacing:0.09em; text-transform:uppercase; display:block; margin-bottom:6px; }
+    .form-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px 13px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border 0.2s; }
+    .form-input:focus { border-color:var(--amber); }
+    textarea.form-input { resize:vertical; min-height:78px; line-height:1.6; }
+    select.form-input { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 13px center; padding-right:34px; }
+    select.form-input option { background:#111827; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+    .voice-wrap { position:relative; }
+    .voice-btn { position:absolute; right:9px; top:50%; transform:translateY(-50%); background:var(--border); border:none; border-radius:7px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text3); font-size:14px; transition:all 0.15s; }
+    .voice-btn.listening { background:rgba(239,68,68,0.2); color:var(--red); animation:pulse 1s infinite; }
+    .notes-voice-wrap { position:relative; }
+    .notes-voice-btn { position:absolute; right:9px; bottom:9px; background:var(--border); border:none; border-radius:7px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text3); font-size:14px; }
+    .notes-voice-btn.listening { background:rgba(239,68,68,0.2); color:var(--red); animation:pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    .voice-input-field { padding-right:48px !important; }
+    .notes-padded { padding-bottom:42px !important; }
 
-    /* AI CHOOSER MODAL */
-    .chooser-modal{background:var(--surface);border:1px solid var(--border2);border-radius:24px 24px 0 0;width:100%;max-width:640px;padding:24px 22px 40px;transform:translateY(50px);transition:transform 0.25s cubic-bezier(0.34,1.4,0.64,1);}
-    .overlay.open .chooser-modal{transform:translateY(0);}
-    .chooser-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#f1f5f9;margin-bottom:6px;}
-    .chooser-sub{font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.6;}
-    .engine-option{background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all 0.15s;display:flex;gap:14px;align-items:flex-start;}
-    .engine-option:active{transform:scale(0.98);}
-    .engine-option.selected{border-color:var(--amber);}
-    .engine-icon{font-size:24px;flex-shrink:0;margin-top:2px;}
-    .engine-name{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
-    .engine-desc{font-size:12px;color:var(--text3);line-height:1.6;}
-    .engine-badge{font-size:9px;font-weight:700;border-radius:6px;padding:2px 7px;letter-spacing:0.06em;}
-    .badge-free{background:rgba(16,185,129,0.15);color:var(--green);}
-    .badge-api{background:rgba(59,130,246,0.15);color:var(--blue);}
-    .engine-warning{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 14px;margin-top:4px;font-size:11px;color:#fbbf24;line-height:1.6;display:none;}
-    .engine-warning.show{display:block;}
+    /* BLUEPRINT SECTION */
+    .blueprint-section { border-top:1px solid var(--border); padding-top:16px; margin-top:4px; }
+    .blueprint-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px; }
+    .blueprint-title { font-size:13px; color:#f1f5f9; font-weight:600; }
+    .blueprint-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+    .btn-blueprint { background:linear-gradient(135deg,var(--amber),#d97706); color:#0a0a0f; font-weight:700; border-radius:10px; padding:9px 15px; font-size:12px; border:none; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
+    .btn-blueprint:disabled { opacity:0.45; cursor:not-allowed; }
+    .blueprint-output { background:#050810; border:1px solid #1e3a5f; border-radius:11px; padding:14px; margin-top:10px; font-size:12px; line-height:1.85; color:#e2e8f0; max-height:320px; overflow-y:auto; white-space:pre-wrap; }
+    .blueprint-output h2 { font-size:12px; font-weight:700; color:var(--amber); margin:12px 0 6px; letter-spacing:0.06em; }
+    .blueprint-output h2:first-child { margin-top:0; }
+    .shimmer-wrap { display:flex; flex-direction:column; gap:7px; margin-top:10px; }
+    .shimmer { background:linear-gradient(90deg,var(--border) 25%,var(--border2) 50%,var(--border) 75%); background-size:200%; animation:shimmer 1.5s infinite; border-radius:5px; height:11px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* MODAL FOOTER */
+    .modal-footer { display:flex; gap:9px; margin-top:22px; align-items:center; }
+    .btn-primary { background:var(--amber); color:#0a0a0f; font-weight:700; border-radius:10px; padding:11px 20px; font-size:13px; border:none; cursor:pointer; font-family:inherit; }
+    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+    .btn-ghost { background:transparent; color:var(--text3); border:1px solid var(--border); border-radius:10px; padding:11px 15px; font-size:13px; cursor:pointer; font-family:inherit; }
+    .btn-delete { background:transparent; color:var(--red); border:1px solid rgba(239,68,68,0.25); border-radius:10px; padding:11px 13px; font-size:12px; cursor:pointer; font-family:inherit; margin-right:auto; }
+
+    /* AI CHOOSER */
+    .chooser-modal { background:var(--surface); border:1px solid var(--border2); border-radius:24px 24px 0 0; width:100%; max-width:640px; padding:24px 22px 44px; transform:translateY(50px); transition:transform 0.25s cubic-bezier(0.34,1.4,0.64,1); max-height:90vh; overflow-y:auto; }
+    .overlay.open .chooser-modal { transform:translateY(0); }
+    .chooser-title { font-family:'Syne',sans-serif; font-size:19px; font-weight:800; color:#f1f5f9; margin-bottom:6px; }
+    .chooser-sub { font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6; }
+    .engine-option { background:var(--surface2); border:2px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; cursor:pointer; transition:all 0.15s; display:flex; gap:12px; align-items:flex-start; }
+    .engine-option.selected { border-color:var(--amber); background:rgba(245,158,11,0.05); }
+    .engine-icon { font-size:22px; flex-shrink:0; margin-top:1px; }
+    .engine-name { font-size:13px; font-weight:700; color:#f1f5f9; margin-bottom:3px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .engine-desc { font-size:11px; color:var(--text3); line-height:1.6; }
+    .engine-link { font-size:10px; color:var(--blue); margin-top:4px; display:block; }
+    .engine-badge { font-size:9px; font-weight:700; border-radius:6px; padding:2px 7px; letter-spacing:0.06em; }
+    .badge-free { background:rgba(16,185,129,0.15); color:var(--green); }
+    .badge-api  { background:rgba(59,130,246,0.15);  color:var(--blue); }
+    .badge-paid { background:rgba(139,92,246,0.15);  color:var(--purple); }
 
     /* SETTINGS */
-    .settings-scroll{flex:1;overflow-y:auto;padding:20px 20px 140px;}
-    .settings-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#f1f5f9;margin-bottom:4px;}
-    .settings-sub{font-size:12px;color:var(--text3);margin-bottom:24px;}
-    .settings-section{margin-bottom:28px;}
-    .settings-section-title{font-size:11px;color:var(--amber);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;}
-    .section-hint{font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;}
-    .settings-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
-    .settings-item-row{display:flex;align-items:center;gap:10px;}
-    .settings-item-icon{font-size:18px;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .settings-item-body{flex:1;min-width:0;}
-    .settings-item-name{font-size:14px;color:var(--text);font-weight:500;}
-    .settings-item-meta{font-size:11px;color:var(--text3);margin-top:2px;}
-    .settings-item-actions{display:flex;gap:5px;flex-shrink:0;}
-    .btn-icon{background:var(--border);border:none;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text3);transition:all 0.15s;}
-    .btn-icon:hover{background:var(--border2);color:var(--text2);}
-    .btn-icon.danger:hover{background:rgba(239,68,68,0.15);color:var(--red);}
-    .rename-row{display:none;margin-top:10px;gap:8px;align-items:center;}
-    .rename-row.open{display:flex;}
-    .rename-input{flex:1;background:var(--surface2);border:1px solid var(--amber);border-radius:9px;padding:8px 12px;color:var(--text);font-family:inherit;font-size:13px;outline:none;}
-    .btn-rename-save{background:var(--amber);color:#0a0a0f;border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
-    .btn-rename-cancel{background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
-    .inline-edit{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-top:10px;}
-    .inline-edit-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
-    .icon-picker-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:6px;}
-    .icon-option{background:var(--surface);border:1px solid var(--border);border-radius:7px;width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all 0.12s;}
-    .icon-option.selected{border-color:var(--amber);background:rgba(245,158,11,0.12);}
-    .color-picker-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
-    .color-option{width:26px;height:26px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:all 0.12s;flex-shrink:0;}
-    .color-option.selected{border-color:white;transform:scale(1.18);}
-    .add-item-row{display:flex;gap:8px;align-items:center;margin-top:10px;}
-    .btn-add{background:var(--amber);color:#0a0a0f;border:none;border-radius:10px;padding:10px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+    .settings-scroll { flex:1; overflow-y:auto; padding:20px 20px 140px; }
+    .settings-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#f1f5f9; margin-bottom:4px; }
+    .settings-sub { font-size:12px; color:var(--text3); margin-bottom:24px; }
+    .settings-section { margin-bottom:28px; }
+    .settings-section-title { font-size:11px; color:var(--amber); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px; }
+    .section-hint { font-size:11px; color:var(--text3); margin-bottom:10px; line-height:1.5; }
+    .settings-item { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:8px; }
+    .settings-item-row { display:flex; align-items:center; gap:10px; }
+    .settings-item-icon { font-size:18px; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .settings-item-body { flex:1; min-width:0; }
+    .settings-item-name { font-size:14px; color:var(--text); font-weight:500; }
+    .settings-item-meta { font-size:11px; color:var(--text3); margin-top:2px; }
+    .settings-item-actions { display:flex; gap:5px; flex-shrink:0; }
+    .btn-icon { background:var(--border); border:none; border-radius:8px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; color:var(--text3); transition:all 0.15s; }
+    .btn-icon:hover { background:var(--border2); color:var(--text2); }
+    .btn-icon.danger:hover { background:rgba(239,68,68,0.15); color:var(--red); }
+    .rename-row { display:none; margin-top:10px; gap:8px; align-items:center; }
+    .rename-row.open { display:flex; }
+    .rename-input { flex:1; background:var(--surface2); border:1px solid var(--amber); border-radius:9px; padding:8px 12px; color:var(--text); font-family:inherit; font-size:13px; outline:none; }
+    .btn-rename-save { background:var(--amber); color:#0a0a0f; border:none; border-radius:9px; padding:8px 14px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .btn-rename-cancel { background:transparent; color:var(--text3); border:1px solid var(--border); border-radius:9px; padding:8px 12px; font-size:12px; cursor:pointer; font-family:inherit; }
+    .inline-edit { background:var(--surface2); border:1px solid var(--border2); border-radius:12px; padding:14px; margin-top:10px; }
+    .inline-edit-label { font-size:10px; color:var(--text3); font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+    .icon-picker-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:5px; margin-top:6px; }
+    .icon-option { background:var(--surface); border:1px solid var(--border); border-radius:7px; width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; transition:all 0.12s; }
+    .icon-option.selected { border-color:var(--amber); background:rgba(245,158,11,0.12); }
+    .color-picker-grid { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+    .color-option { width:26px; height:26px; border-radius:7px; cursor:pointer; border:2px solid transparent; transition:all 0.12s; flex-shrink:0; }
+    .color-option.selected { border-color:white; transform:scale(1.18); }
+    .add-item-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
+    .btn-add { background:var(--amber); color:#0a0a0f; border:none; border-radius:10px; padding:10px 15px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
+    .ai-engine-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .ai-engine-row { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; }
+    .ai-engine-row:last-of-type { border-bottom:none; }
+    .ai-engine-row.active-engine { background:rgba(245,158,11,0.05); }
+    .ai-radio { width:18px; height:18px; border-radius:50%; border:2px solid var(--border2); flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+    .ai-radio.checked { border-color:var(--amber); }
+    .ai-radio.checked::after { content:""; width:8px; height:8px; border-radius:50%; background:var(--amber); }
+    .ai-engine-body { flex:1; }
+    .ai-engine-name { font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .ai-engine-detail { font-size:11px; color:var(--text3); line-height:1.6; }
+    .ai-engine-link { font-size:10px; color:var(--blue); margin-top:3px; display:block; }
+    .api-key-section { padding:14px 16px; background:var(--surface2); border-top:1px solid var(--border); }
+    .api-key-label { font-size:10px; color:var(--text3); font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:6px; }
+    .api-key-notice { font-size:11px; color:var(--text3); margin-bottom:10px; line-height:1.6; padding:8px 10px; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.15); border-radius:8px; }
+    .api-key-wrap { display:flex; gap:8px; align-items:center; }
+    .api-key-input { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 13px; color:var(--text); font-family:inherit; font-size:13px; outline:none; transition:border 0.2s; }
+    .api-key-input:focus { border-color:var(--blue); }
+    .btn-save-key { background:var(--blue); color:white; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .api-key-status { font-size:11px; margin-top:8px; }
+    .api-key-status.saved { color:var(--green); }
+    .api-key-status.missing { color:var(--text3); }
 
-    /* AI ENGINE SETTINGS */
-    .ai-engine-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-    .ai-engine-row{display:flex;align-items:flex-start;gap:14px;padding:16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
-    .ai-engine-row:last-of-type{border-bottom:none;}
-    .ai-engine-row:active{background:var(--surface2);}
-    .ai-engine-row.active-engine{background:rgba(245,158,11,0.05);}
-    .ai-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-    .ai-radio.checked{border-color:var(--amber);}
-    .ai-radio.checked::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--amber);}
-    .ai-engine-body{flex:1;}
-    .ai-engine-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px;}
-    .ai-engine-detail{font-size:11px;color:var(--text3);line-height:1.6;}
-    .api-key-section{padding:14px 16px;background:var(--surface2);border-top:1px solid var(--border);}
-    .api-key-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;}
-    .api-key-notice{font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.6;padding:8px 10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:8px;}
-    .api-key-wrap{display:flex;gap:8px;align-items:center;}
-    .api-key-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border 0.2s;}
-    .api-key-input:focus{border-color:var(--blue);}
-    .btn-save-key{background:var(--blue);color:white;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
-    .api-key-status{font-size:11px;margin-top:8px;}
-    .api-key-status.saved{color:var(--green);}
-    .api-key-status.missing{color:var(--text3);}
+    /* UPDATE MODAL */
+    .update-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:500; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+    .update-overlay.open { opacity:1; pointer-events:all; }
+    .update-sheet { background:var(--surface); border:1px solid var(--border2); border-radius:24px 24px 0 0; width:100%; max-width:640px; padding:22px 22px 40px; transform:translateY(60px); transition:transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+    .update-overlay.open .update-sheet { transform:translateY(0); }
+    .update-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 18px; }
+    .update-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); border-radius:20px; padding:4px 12px; font-size:11px; color:var(--amber); font-weight:700; letter-spacing:0.06em; margin-bottom:12px; }
+    .update-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#f1f5f9; margin-bottom:6px; }
+    .update-sub { font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6; }
+    .update-whatsnew { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:18px; }
+    .update-whatsnew-title { font-size:10px; color:var(--amber); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
+    .update-item { font-size:13px; color:var(--text2); margin-bottom:7px; display:flex; align-items:flex-start; gap:8px; line-height:1.5; }
+    .update-item:last-child { margin-bottom:0; }
+    .update-item-dot { color:var(--amber); flex-shrink:0; margin-top:1px; }
+    .update-actions { display:flex; gap:10px; }
+    .btn-update { flex:1; background:var(--amber); color:#0a0a0f; font-weight:700; border-radius:12px; padding:13px 20px; font-size:14px; border:none; cursor:pointer; font-family:inherit; }
+    .btn-later { background:transparent; color:var(--text3); border:1px solid var(--border); border-radius:12px; padding:13px 20px; font-size:13px; cursor:pointer; font-family:inherit; }
 
     /* ABOUT */
-    .about-scroll{flex:1;overflow-y:auto;padding:0 0 100px;}
-    .about-hero{background:linear-gradient(160deg,#0a0a0f 0%,#0d1117 40%,#0f1824 100%);padding:48px 24px 36px;text-align:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
-    .about-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(245,158,11,0.08) 0%,transparent 70%);pointer-events:none;}
-    .about-logo-wrap{display:inline-flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:24px;overflow:hidden;margin-bottom:18px;}
-    .about-app-name{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#f1f5f9;letter-spacing:-0.02em;}
-    .about-motto{font-size:13px;color:var(--amber);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-top:6px;}
-    .about-tagline{font-size:13px;color:var(--text3);margin-top:10px;line-height:1.6;max-width:280px;margin-left:auto;margin-right:auto;}
-    .about-version{display:inline-block;background:var(--border);color:var(--text3);border-radius:20px;padding:3px 12px;font-size:11px;margin-top:14px;}
-    .about-body{padding:28px 22px;}
-    .about-section{margin-bottom:28px;}
-    .about-section-title{font-size:10px;color:var(--amber);font-weight:700;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;}
-    .about-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-    .about-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;transition:background 0.15s;cursor:pointer;}
-    .about-row:last-child{border-bottom:none;}
-    .about-row:active{background:var(--surface2);}
-    .about-row-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-    .about-row-body{flex:1;}
-    .about-row-title{font-size:14px;color:var(--text);font-weight:50
+    .about-scroll { flex:1; overflow-y:auto; padding:0 0 100px; }
+    .about-hero { background:linear-gradient(160deg,#0a0a0f 0%,#0d1117 40%,#0f1824 100%); padding:44px 24px 32px; text-align:center; border-bottom:1px solid var(--border); position:relative; overflow:hidden; }
+    .about-hero::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(245,158,11,0.08) 0%,transparent 70%); pointer-events:none; }
+    .about-logo-wrap { display:inline-flex; align-items:center; justify-content:center; width:80px; height:80px; border-radius:24px; overflow:hidden; margin-bottom:16px; }
+    .about-app-name { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#f1f5f9; letter-spacing:-0.02em; }
+    .about-app-tag { font-size:12px; color:var(--text3); margin-top:4px; }
+    .about-motto { font-size:12px; color:var(--amber); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-top:8px; }
+    .about-version-wrap { margin-top:12px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+    .about-version { display:inline-block; background:var(--border); color:var(--text3); border-radius:20px; padding:3px 12px; font-size:11px; }
+    .about-body { padding:24px 20px; }
+    .about-section { margin-bottom:24px; }
+    .about-section-title { font-size:10px; color:var(--amber); font-weight:700; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:12px; }
+    .about-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .about-row { display:flex; align-items:center; gap:14px; padding:14px 16px; border-bottom:1px solid var(--border); text-decoration:none; transition:background 0.15s; cursor:pointer; }
+    .about-row:last-child { border-bottom:none; }
+    .about-row:active { background:var(--surface2); }
+    .about-row-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .about-row-body { flex:1; }
+    .about-row-title { font-size:14px; color:var(--text); font-weight:500; }
+    .about-row-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+    .about-row-arrow { color:var(--text3); font-size:14px; }
+    .about-brand-block { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; text-align:center; }
+    .about-brand-name { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#f1f5f9; }
+    .about-brand-sub { font-size:12px; color:var(--text3); margin-top:4px; line-height:1.6; }
+    .about-brand-motto { font-size:11px; color:var(--amber); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-top:10px; display:inline-block; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2); border-radius:20px; padding:4px 14px; }
+    .about-feature-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .about-feature { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; }
+    .about-feature-icon { font-size:20px; margin-bottom:8px; }
+    .about-feature-title { font-size:12px; color:var(--text); font-weight:600; }
+    .about-feature-sub { font-size:11px; color:var(--text3); margin-top:3px; line-height:1.5; }
+    .about-footer { text-align:center; padding:0 24px 10px; font-size:11px; color:var(--text3); line-height:1.8; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px); background:#1a1f2e; border:1px solid var(--border2); border-radius:10px; padding:9px 16px; font-size:13px; color:var(--text2); z-index:999; opacity:0; transition:all 0.25s; white-space:nowrap; pointer-events:none; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- HOME VIEW -->
+<div class="view active" id="v-home">
+  <div id="ticker-bar" onclick="handleTickerTap(event)">
+    <div id="ticker-track"></div>
+  </div>
+  <div id="v-home-header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="app-label">AI Project Copilot</div>
+        <div class="app-title">MakerMind</div>
+        <div class="app-subtitle" id="project-count">0 projects</div>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" id="search-input" placeholder="Search projects…" oninput="renderCards()" />
+    </div>
+  </div>
+  <div id="v-home-filters">
+    <div class="filter-row" id="cat-filters"></div>
+    <div class="filter-row" style="margin-top:7px;" id="status-filters"></div>
+  </div>
+  <div id="v-home-grid">
+    <div class="cards-grid" id="cards-grid"></div>
+  </div>
+</div>
+
+<!-- SETTINGS VIEW -->
+<div class="view" id="v-settings">
+  <div class="settings-scroll">
+    <div class="settings-title">Settings</div>
+    <div class="settings-sub">Customise your MakerMind experience</div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">AI Engine</div>
+      <div class="section-hint">Choose how MakerMind generates project blueprints. Switch anytime.</div>
+      <div class="ai-engine-card" id="ai-engine-card">
+        <div class="ai-engine-row" id="engine-row-pollinations" onclick="setEngine('pollinations')">
+          <div class="ai-radio" id="radio-pollinations"></div>
+          <div class="ai-engine-body">
+            <div class="ai-engine-name">Pollinations AI <span class="engine-badge badge-free">FREE · NO KEY</span></div>
+            <div class="ai-engine-detail">Completely free, no account or API key needed. Good quality. Requires internet.</div>
+          </div>
+        </div>
+        <div class="ai-engine-row" id="engine-row-groq" onclick="setEngine('groq')">
+          <div class="ai-radio" id="radio-groq"></div>
+          <div class="ai-engine-body">
+            <div class="ai-engine-name">Groq (Llama 3) <span class="engine-badge badge-free">FREE KEY</span></div>
+            <div class="ai-engine-detail">Fast, high quality, free API key. Powered by Llama 3 on Groq's fast inference.</div>
+            <a class="ai-engine-link" href="https://console.groq.com" target="_blank" onclick="event.stopPropagation()">→ Get free key at console.groq.com</a>
+          </div>
+        </div>
+        <div class="ai-engine-row" id="engine-row-gemini" onclick="setEngine('gemini')">
+          <div class="ai-radio" id="radio-gemini"></div>
+          <div class="ai-engine-body">
+            <div class="ai-engine-name">Google Gemini <span class="engine-badge badge-free">FREE KEY</span></div>
+            <div class="ai-engine-detail">High quality using Gemini Flash. Free key, no credit card, 1,500 requests/day.</div>
+            <a class="ai-engine-link" href="https://aistudio.google.com" target="_blank" onclick="event.stopPropagation()">→ Get free key at aistudio.google.com</a>
+          </div>
+        </div>
+        <div class="ai-engine-row" id="engine-row-claude" onclick="setEngine('claude')">
+          <div class="ai-radio" id="radio-claude"></div>
+          <div class="ai-engine-body">
+            <div class="ai-engine-name">Claude API <span class="engine-badge badge-paid">PAID KEY</span></div>
+            <div class="ai-engine-detail">Best quality blueprints. Requires paid key from Anthropic.</div>
+            <a class="ai-engine-link" href="https://console.anthropic.com" target="_blank" onclick="event.stopPropagation()">→ Get key at console.anthropic.com</a>
+          </div>
+        </div>
+        <div class="api-key-section" id="api-key-section" style="display:none;">
+          <div class="api-key-label" id="api-key-label">API Key</div>
+          <div class="api-key-notice" id="api-key-notice">🔒 Stored only in this browser on this device. Never shared, never in source code.</div>
+          <div class="api-key-wrap">
+            <input class="api-key-input" id="settings-api-key" type="password" placeholder="Paste your API key…" autocomplete="off" />
+            <button class="btn-save-key" onclick="saveApiKey()">Save</button>
+          </div>
+          <div class="api-key-status missing" id="api-key-status">No API key saved yet</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Categories</div>
+      <div class="section-hint">Tap ✎ to rename inline. Reorder with ↑↓.</div>
+      <div id="cat-list"></div>
+      <div class="inline-edit">
+        <div class="inline-edit-label">Add Category</div>
+        <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="new-cat-name" placeholder="e.g. Robotics, Audio…" /></div>
+        <div class="form-group"><label class="form-label">Icon</label><div class="icon-picker-grid" id="icon-picker"></div></div>
+        <div class="form-group"><label class="form-label">Colour</label><div class="color-picker-grid" id="color-picker"></div></div>
+        <button class="btn-add" onclick="addCategory()" style="width:100%;margin-top:4px;">+ Add Category</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Statuses</div>
+      <div class="section-hint">Tap ✎ to rename inline. Reorder with ↑↓.</div>
+      <div id="status-list"></div>
+      <div class="add-item-row">
+        <input class="form-input" id="new-status-name" placeholder="New status name…" />
+        <input type="color" id="new-status-color" value="#f59e0b" style="width:38px;height:38px;border:none;background:none;cursor:pointer;border-radius:8px;padding:2px;" />
+        <button class="btn-add" onclick="addStatus()">+ Add</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Data</div>
+      <button onclick="clearAllProjects()" style="background:transparent;color:var(--red);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit;width:100%;text-align:left;margin-bottom:10px;">🗑 Clear all projects</button>
+      <button onclick="resetDefaults()" style="background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit;width:100%;text-align:left;">↺ Restore default categories & statuses</button>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT VIEW -->
+<div class="view" id="v-about">
+  <div class="about-scroll">
+    <div class="about-hero">
+      <div class="about-logo-wrap"><img src="icons/icon-192.png" width="80" height="80" alt="MakerMind" style="border-radius:18px;" /></div>
+      <div class="about-app-name">MakerMind</div>
+      <div class="about-app-tag">AI Project Copilot for Makers &amp; Builders</div>
+      <div class="about-motto">Build. Break. Learn.</div>
+      <div class="about-version-wrap">
+        <span class="about-version">v2.0.0-alpha1 · PWA</span>
+        <button onclick="checkForUpdate()" style="background:transparent;color:var(--amber);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">↻ Check for Update</button>
+      </div>
+    </div>
+    <div class="about-body">
+      <div class="about-section">
+        <div class="about-section-title">What's New</div>
+        <div class="about-card">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:13px;font-weight:700;color:var(--amber);">v2.0.0-alpha1</span>
+              <span style="font-size:10px;color:var(--text3);">2025-06-08</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:12px;color:var(--text2);">🚀 MakerMind reborn as AI Project Copilot</div>
+              <div style="font-size:12px;color:var(--text2);">📋 AI Project Blueprint with structured sections</div>
+              <div style="font-size:12px;color:var(--text2);">🤖 4 AI engines: Pollinations · Groq · Gemini · Claude</div>
+              <div style="font-size:12px;color:var(--text2);">🔄 Automatic migration from v1 ideas to v2 projects</div>
+            </div>
+          </div>
+          <div style="padding:14px 16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:12px;font-weight:600;color:var(--text3);">v1.x</span>
+              <span style="font-size:10px;color:var(--text3);">2025-06-08</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);">Idea capture · Voice input · Custom categories · Settings · Ticker · Update system</div>
+          </div>
+        </div>
+      </div>
+      <div class="about-section">
+        <div class="about-section-title">Created by</div>
+        <div class="about-brand-block">
+          <div style="font-size:28px;margin-bottom:10px;">🔧</div>
+          <div class="about-brand-name">Karim Amer</div>
+          <div class="about-brand-sub">Electrical &amp; Electronics Engineer · Maker · Homelab Builder<br>Cairo, Egypt</div>
+          <div class="about-brand-motto">Lab Nextdoor</div>
+        </div>
+      </div>
+      <div class="about-section">
+        <div class="about-section-title">Find me online</div>
+        <div class="about-card">
+          <a class="about-row" href="https://github.com/kamer79" target="_blank" rel="noopener">
+            <div class="about-row-icon" style="background:rgba(255,255,255,0.05);"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:#e2e8f0"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></div>
+            <div class="about-row-body"><div class="about-row-title">GitHub</div><div class="about-row-sub">github.com/kamer79</div></div>
+            <div class="about-row-arrow">↗</div>
+          </a>
+          <a class="about-row" href="https://www.facebook.com/share/1GyUm82URK/" target="_blank" rel="noopener">
+            <div class="about-row-icon" style="background:rgba(59,130,246,0.1);"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:#3b82f6"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+            <div class="about-row-body"><div class="about-row-title">Facebook — Lab Nextdoor</div><div class="about-row-sub">Follow the build journey</div></div>
+            <div class="about-row-arrow">↗</div>
+          </a>
+        </div>
+      </div>
+      <div class="about-section">
+        <div class="about-section-title">Support the Project</div>
+        <a href="https://paypal.me/KarimAmer914" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#0070E0,#003087);border-radius:14px;padding:16px 20px;text-decoration:none;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.471z"/></svg>
+          <div><div style="color:white;font-weight:700;font-size:14px;">Support via PayPal</div><div style="color:rgba(255,255,255,0.7);font-size:11px;margin-top:2px;">If MakerMind helps you build, buy me a coffee ☕</div></div>
+        </a>
+      </div>
+      <div class="about-section">
+        <div class="about-section-title">What's inside</div>
+        <div class="about-feature-grid">
+          <div class="about-feature"><div class="about-feature-icon">🎙</div><div class="about-feature-title">Voice Capture</div><div class="about-feature-sub">Speak projects hands-free</div></div>
+          <div class="about-feature"><div class="about-feature-icon">📋</div><div class="about-feature-title">AI Blueprint</div><div class="about-feature-sub">Structured project plans</div></div>
+          <div class="about-feature"><div class="about-feature-icon">⚙</div><div class="about-feature-title">4 AI Engines</div><div class="about-feature-sub">Free options available</div></div>
+          <div class="about-feature"><div class="about-feature-icon">📱</div><div class="about-feature-title">Installable PWA</div><div class="about-feature-sub">Works offline on Android</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="about-footer">Built with ♥ in Cairo · AI-powered<br><span style="color:#374151;">© 2025 Karim Amer · Lab Nextdoor</span></div>
+  </div>
+</div>
+
+<!-- NAV + FAB -->
+<div id="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="switchView('home')"><span class="nav-icon">◈</span>Projects</button>
+  <button class="nav-item" id="nav-settings" onclick="switchView('settings')"><span class="nav-icon">⚙</span>Settings</button>
+  <button class="nav-item" id="nav-about" onclick="switchView('about')"><span class="nav-icon">◉</span>About</button>
+</div>
+<div id="fab"><button class="fab" onclick="openModal()">+</button></div>
+
+<!-- PROJECT MODAL -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">New Project</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project Name *</label>
+      <div class="voice-wrap">
+        <input class="form-input voice-input-field" id="f-title" placeholder="What are you building?" />
+        <button class="voice-btn" id="voice-title-btn" onclick="toggleVoice('title')">🎙</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Category</label><select class="form-input" id="f-category"></select></div>
+      <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="f-status"></select></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <div class="notes-voice-wrap">
+        <textarea class="form-input notes-padded" id="f-notes" placeholder="What problem does this solve? Any constraints…"></textarea>
+        <button class="notes-voice-btn" id="voice-notes-btn" onclick="toggleVoice('notes')">🎙</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;">(comma separated)</span></label>
+      <input class="form-input" id="f-tags" placeholder="e.g. esp32, mqtt, home-assistant" />
+    </div>
+    <div class="blueprint-section">
+      <div class="blueprint-header">
+        <div>
+          <div class="blueprint-title" id="bp-title">📋 Project Blueprint</div>
+          <div class="blueprint-sub" id="bp-sub">AI generates a structured plan for your project</div>
+        </div>
+        <button class="btn-blueprint" id="blueprint-btn" onclick="generateBlueprint()">Generate →</button>
+      </div>
+      <div class="shimmer-wrap" id="shimmer" style="display:none;">
+        <div class="shimmer" style="width:100%"></div>
+        <div class="shimmer" style="width:80%"></div>
+        <div class="shimmer" style="width:90%"></div>
+        <div class="shimmer" style="width:65%"></div>
+        <div class="shimmer" style="width:75%"></div>
+      </div>
+      <div class="blueprint-output" id="blueprint-output" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-delete" id="delete-btn" onclick="deleteCurrentProject()" style="display:none;">Delete</button>
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="save-btn" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI CHOOSER MODAL -->
+<div class="overlay" id="chooser-overlay">
+  <div class="chooser-modal">
+    <div class="modal-handle"></div>
+    <div class="chooser-title">Choose your AI engine</div>
+    <div class="chooser-sub">MakerMind uses AI to generate project blueprints. Pick what works for you — switch anytime in Settings.</div>
+    <div class="engine-option" id="chooser-pollinations" onclick="chooserSelect('pollinations')">
+      <div class="engine-icon">🆓</div>
+      <div>
+        <div class="engine-name">Pollinations AI <span class="engine-badge badge-free">FREE · NO KEY</span></div>
+        <div class="engine-desc">Zero friction — no account, no key. Good quality. Just tap confirm.</div>
+      </div>
+    </div>
+    <div class="engine-option" id="chooser-groq" onclick="chooserSelect('groq')">
+      <div class="engine-icon">⚡</div>
+      <div>
+        <div class="engine-name">Groq (Llama 3) <span class="engine-badge badge-free">FREE KEY</span></div>
+        <div class="engine-desc">Fast and high quality. Free key at console.groq.com — no credit card.</div>
+        <a class="engine-link" href="https://console.groq.com" target="_blank" onclick="event.stopPropagation()">→ console.groq.com</a>
+      </div>
+    </div>
+    <div class="engine-option" id="chooser-gemini" onclick="chooserSelect('gemini')">
+      <div class="engine-icon">💎</div>
+      <div>
+        <div class="engine-name">Google Gemini <span class="engine-badge badge-free">FREE KEY</span></div>
+        <div class="engine-desc">High quality, 1,500 requests/day free. Key at aistudio.google.com.</div>
+        <a class="engine-link" href="https://aistudio.google.com" target="_blank" onclick="event.stopPropagation()">→ aistudio.google.com</a>
+      </div>
+    </div>
+    <div class="engine-option" id="chooser-claude" onclick="chooserSelect('claude')">
+      <div class="engine-icon">🧠</div>
+      <div>
+        <div class="engine-name">Claude API <span class="engine-badge badge-paid">PAID KEY</span></div>
+        <div class="engine-desc">Best quality blueprints. Requires paid key from console.anthropic.com.</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="confirmChooser()" style="width:100%;margin-top:16px;">Confirm →</button>
+  </div>
+</div>
+
+<!-- UPDATE MODAL -->
+<div class="update-overlay" id="update-overlay">
+  <div class="update-sheet">
+    <div class="update-handle"></div>
+    <div class="update-badge">✦ Update Available</div>
+    <div class="update-title">MakerMind <span id="update-version"></span> is ready</div>
+    <div class="update-sub">A new version has been downloaded. Your projects and settings are safe.</div>
+    <div class="update-whatsnew"><div class="update-whatsnew-title">What's new</div><div id="update-whats-new"></div></div>
+    <div class="update-actions">
+      <button class="btn-later" onclick="dismissUpdate()">Later</button>
+      <button class="btn-update" onclick="applyUpdate()">Update Now →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONSTANTS ──────────────────────────────────────────────
+const APP_VERSION    = "2.0.0-alpha1";
+const SK_PROJECTS    = "mm-projects-v2";   // new key
+const SK_IDEAS_LEGACY= "mm-ideas-v1";      // old key for migration
+const SK_CATEGORIES  = "mm-categories-v1";
+const SK_STATUSES    = "mm-statuses-v1";
+const SK_AI_ENGINE   = "mm-ai-engine";
+const SK_CLAUDE_KEY  = "mm-claude-key";
+const SK_GEMINI_KEY  = "mm-gemini-key";
+const SK_GROQ_KEY    = "mm-groq-key";
+const SK_MIGRATED    = "mm-migrated-v2";
+const SK_TICKER      = "mm-ticker-v1";
+
+const ICONS  = ["◈","⚙","⌂","◎","✦","⬡","⬢","△","▽","◻","◉","⊕","⊗","⊞","✿","❋","⌘","⏣","⌬","⬟","♾","⚡","🔧","💡","📦","🧪","🖥","📡","🔬","🌱","🛠","📐"];
+const COLORS = ["#f59e0b","#3b82f6","#10b981","#ec4899","#8b5cf6","#ef4444","#06b6d4","#f97316","#84cc16","#e879f9","#fb7185","#34d399","#60a5fa","#a78bfa","#fbbf24","#94a3b8"];
+
+const DEFAULT_CATEGORIES = [
+  {id:"homelab",  label:"Homelab",        icon:"🖥", color:"#3b82f6"},
+  {id:"smarthome",label:"Smart Home",     icon:"⌂",  color:"#10b981"},
+  {id:"esp32",    label:"ESP32",          icon:"⚙",  color:"#f59e0b"},
+  {id:"printing", label:"3D Printing",    icon:"🖨",  color:"#8b5cf6"},
+  {id:"electronics",label:"Electronics", icon:"⚡",  color:"#ec4899"},
+];
+const DEFAULT_STATUSES = [
+  {id:"idea",       label:"Idea",        color:"#6b7280"},
+  {id:"planning",   label:"Planning",    color:"#f59e0b"},
+  {id:"inprogress", label:"In Progress", color:"#3b82f6"},
+  {id:"done",       label:"Done",        color:"#10b981"},
+  {id:"onhold",     label:"On Hold",     color:"#9333ea"},
+];
+
+const VERSION_NOTES = {
+  "2.0.0-alpha1": [
+    "Reborn as AI Project Copilot for makers",
+    "Structured Project Blueprint (Hardware · Software · Risks · Milestones)",
+    "4 AI engines: Pollinations · Groq · Gemini · Claude",
+    "Automatic migration from v1 ideas to v2 projects"
+  ],
+  "1.6.0": ["3-engine AI chooser","Pollinations AI (free, no key)","Google Gemini support"],
+  "1.5.0": ["Live info ticker","Server-updatable content"],
+  "1.4.0": ["In-app update notifications","Free AI engine support"],
+};
+
+const TICKER_URL = "https://kamer79.github.io/makermind/ticker.json";
+const TYPE_CONFIG = {
+  tip:       {color:"#3b82f6", icon:"💡"},
+  feature:   {color:"#8b5cf6", icon:"✦"},
+  version:   {color:"#f59e0b", icon:"🆕"},
+  motto:     {color:"#f59e0b", icon:"🔧"},
+  use:       {color:"#10b981", icon:"🛠"},
+  ai:        {color:"#8b5cf6", icon:"⚡"},
+  community: {color:"#ec4899", icon:"⭐"},
+};
+const FALLBACK_TICKER = [
+  {type:"motto",   text:"Build. Break. Learn."},
+  {type:"feature", text:"Generate a full Project Blueprint with one tap"},
+  {type:"use",     text:"Built for Homelab · ESP32 · Smart Home · Electronics · 3D Printing"},
+  {type:"ai",      text:"4 AI engines — Pollinations is free, no key needed"},
+  {type:"tip",     text:"Use voice input to capture project ideas hands-free"},
+  {type:"version", text:"MakerMind v2.0.0-alpha1 — AI Project Copilot"},
+  {type:"community",text:"Star us on GitHub — github.com/kamer79"},
+];
+
+// ── STATE ──────────────────────────────────────────────────
+let projects=[], categories=[], statuses=[];
+let activeCategory="all", activeStatus="all";
+let editingId=null, blueprintOutput="";
+let recognition=null, listeningField=null;
+let aiEngine="", claudeApiKey="", geminiApiKey="", groqApiKey="";
+let newCatIcon=ICONS[0], newCatColor=COLORS[0];
+let chooserPending=null;
+let tickerItems=[];
+
+// ── STORAGE ────────────────────────────────────────────────
+function load(){
+  try{projects=JSON.parse(localStorage.getItem(SK_PROJECTS))||[];}catch{projects=[];}
+  try{categories=JSON.parse(localStorage.getItem(SK_CATEGORIES))||null;}catch{categories=null;}
+  try{statuses=JSON.parse(localStorage.getItem(SK_STATUSES))||null;}catch{statuses=null;}
+  if(!categories||!categories.length) categories=JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+  if(!statuses||!statuses.length)     statuses=JSON.parse(JSON.stringify(DEFAULT_STATUSES));
+  aiEngine     = localStorage.getItem(SK_AI_ENGINE)||"";
+  claudeApiKey = localStorage.getItem(SK_CLAUDE_KEY)||"";
+  geminiApiKey = localStorage.getItem(SK_GEMINI_KEY)||"";
+  groqApiKey   = localStorage.getItem(SK_GROQ_KEY)||"";
+  migrateV1();
+}
+function persist(){
+  localStorage.setItem(SK_PROJECTS,   JSON.stringify(projects));
+  localStorage.setItem(SK_CATEGORIES, JSON.stringify(categories));
+  localStorage.setItem(SK_STATUSES,   JSON.stringify(statuses));
+}
+
+// ── MIGRATION v1 → v2 ─────────────────────────────────────
+function migrateV1(){
+  if(localStorage.getItem(SK_MIGRATED)) return;
+  try{
+    const old = JSON.parse(localStorage.getItem(SK_IDEAS_LEGACY))||[];
+    if(old.length && projects.length===0){
+      projects = old.map(idea=>({
+        ...idea,
+        blueprint: idea.aiExpansion||"",
+        migratedFrom:"v1",
+      }));
+      persist();
+      showToast(`Migrated ${old.length} ideas from v1 ✓`);
+    }
+  }catch(e){}
+  localStorage.setItem(SK_MIGRATED,"1");
+}
+
+// ── VIEW SWITCH ────────────────────────────────────────────
+function switchView(v){
+  document.querySelectorAll(".view").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(el=>el.classList.remove("active"));
+  document.getElementById("v-"+v).classList.add("active");
+  document.getElementById("nav-"+v).classList.add("active");
+  document.getElementById("fab").style.display = v==="home"?"block":"none";
+  if(v==="settings") renderSettings();
+}
+
+// ── INIT ───────────────────────────────────────────────────
+function init(){
+  load();
+  renderFilters(); renderCards(); populateSelects(); initVoice();
+  updateBlueprintButton();
+  initTicker();
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+    navigator.serviceWorker.addEventListener("message", e=>{
+      if(e.data?.type==="NEW_VERSION" && e.data.version!==APP_VERSION)
+        setTimeout(()=>showUpdateModal(e.data.version), 1500);
+    });
+  }
+}
+
+// ── BLUEPRINT BUTTON STATE ─────────────────────────────────
+function updateBlueprintButton(){
+  const btn = document.getElementById("blueprint-btn");
+  const sub = document.getElementById("bp-sub");
+  if(!btn) return;
+  const labels={
+    "pollinations": "Powered by Pollinations AI · free, no key needed",
+    "groq":         "Powered by Groq (Llama 3) · your key, your device",
+    "gemini":       "Powered by Google Gemini · your key, your device",
+    "claude":       "Powered by Claude API · your key, your device",
+    "":             "Tap to choose your AI engine (free option available)",
+  };
+  if(sub) sub.textContent = labels[aiEngine]||labels[""];
+  if(btn) btn.textContent = aiEngine ? "Generate →" : "Choose AI →";
+}
+
+// ── FILTERS ────────────────────────────────────────────────
+function renderFilters(){
+  let h=`<button class="fpill ${activeCategory==="all"?"active":""}" onclick="setCat('all')">All <span class="count-badge">${projects.length}</span></button>`;
+  categories.forEach(c=>{
+    const n=projects.filter(p=>p.category===c.id).length;
+    const on=activeCategory===c.id;
+    h+=`<button class="fpill" onclick="setCat('${c.id}')" style="${on?`border-color:${c.color};color:${c.color};background:${c.color}18`:""}">${c.icon} ${c.label} <span class="count-badge">${n}</span></button>`;
+  });
+  document.getElementById("cat-filters").innerHTML=h;
+  let sh=`<button class="fpill ${activeStatus==="all"?"active":""}" onclick="setStat('all')">Any status</button>`;
+  statuses.forEach(s=>{
+    const on=activeStatus===s.id;
+    sh+=`<button class="fpill" onclick="setStat('${s.id}')" style="${on?`border-color:${s.color};color:${s.color};background:${s.color}18`:""}">${s.label}</button>`;
+  });
+  document.getElementById("status-filters").innerHTML=sh;
+  document.getElementById("project-count").textContent=`${projects.length} project${projects.length!==1?"s":""}`;
+}
+function setCat(id){activeCategory=id;renderFilters();renderCards();}
+function setStat(id){activeStatus=id;renderFilters();renderCards();}
+
+// ── CARDS ──────────────────────────────────────────────────
+function renderCards(){
+  const q=(document.getElementById("search-input")?.value||"").toLowerCase();
+  const filtered=projects.filter(p=>{
+    if(activeCategory!=="all"&&p.category!==activeCategory)return false;
+    if(activeStatus!=="all"&&p.status!==activeStatus)return false;
+    if(q&&!p.title.toLowerCase().includes(q)&&!(p.notes||"").toLowerCase().includes(q))return false;
+    return true;
+  });
+  const grid=document.getElementById("cards-grid");
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">◈</div><div class="empty-title">No projects yet</div><div class="empty-sub">Tap + to create your first project</div></div>`;
+    return;
+  }
+  grid.innerHTML=filtered.map(p=>{
+    const cat =categories.find(c=>c.id===p.category)||{icon:"◈",color:"#6b7280",label:"?"};
+    const stat=statuses.find(s=>s.id===p.status)||{color:"#6b7280",label:p.status};
+    const notes=p.notes?(p.notes.length>90?p.notes.slice(0,90)+"…":p.notes):"";
+    const tags=(p.tags||[]).map(t=>`<span class="tag">#${t}</span>`).join("");
+    const hasBp = !!(p.blueprint);
+    return `<div class="card" onclick="openEditModal('${p.id}')">
+      <div class="card-accent" style="background:${cat.color}88"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="cat-label" style="color:${cat.color}">${cat.icon} ${cat.label}</span>
+          <span class="status-pill" style="background:${stat.color}22;color:${stat.color}">${stat.label}</span>
+        </div>
+        <div class="card-title">${esc(p.title)}</div>
+        ${notes?`<div class="card-notes">${esc(notes)}</div>`:""}
+        ${hasBp?`<div class="card-blueprint-badge">📋 Blueprint ready</div>`:""}
+        ${tags?`<div class="card-tags">${tags}</div>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+// ── MODAL ──────────────────────────────────────────────────
+function populateSelects(){
+  document.getElementById("f-category").innerHTML=categories.map(c=>`<option value="${c.id}">${c.icon} ${c.label}</option>`).join("");
+  document.getElementById("f-status").innerHTML=statuses.map(s=>`<option value="${s.id}">${s.label}</option>`).join("");
+}
+function openModal(){
+  editingId=null; blueprintOutput="";
+  document.getElementById("modal-title").textContent="New Project";
+  ["f-title","f-notes","f-tags"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("f-category").value=categories[0]?.id||"";
+  document.getElementById("f-status").value=statuses[0]?.id||"";
+  document.getElementById("blueprint-output").style.display="none";
+  document.getElementById("blueprint-output").innerHTML="";
+  document.getElementById("shimmer").style.display="none";
+  document.getElementById("delete-btn").style.display="none";
+  document.getElementById("save-btn").textContent="Save Project";
+  updateBlueprintButton();
+  document.getElementById("overlay").classList.add("open");
+  setTimeout(()=>document.getElementById("f-title").focus(),300);
+}
+function openEditModal(id){
+  const p=projects.find(x=>x.id===id); if(!p) return;
+  editingId=id; blueprintOutput=p.blueprint||"";
+  document.getElementById("modal-title").textContent="Edit Project";
+  document.getElementById("f-title").value=p.title;
+  document.getElementById("f-category").value=p.category;
+  document.getElementById("f-status").value=p.status;
+  document.getElementById("f-notes").value=p.notes||"";
+  document.getElementById("f-tags").value=(p.tags||[]).join(", ");
+  const bpEl=document.getElementById("blueprint-output");
+  if(blueprintOutput){
+    bpEl.innerHTML=formatBlueprint(blueprintOutput);
+    bpEl.style.display="block";
+  } else { bpEl.style.display="none"; }
+  document.getElementById("shimmer").style.display="none";
+  document.getElementById("delete-btn").style.display="block";
+  document.getElementById("save-btn").textContent="Update";
+  updateBlueprintButton();
+  document.getElementById("overlay").classList.add("open");
+}
+function closeModal(){document.getElementById("overlay").classList.remove("open");stopVoice();}
+function handleOverlayClick(e){if(e.target===document.getElementById("overlay"))closeModal();}
+function saveProject(){
+  const title=document.getElementById("f-title").value.trim();
+  if(!title){showToast("Please enter a project name");return;}
+  const tags=document.getElementById("f-tags").value.split(",").map(t=>t.trim()).filter(Boolean);
+  const data={title,category:document.getElementById("f-category").value,status:document.getElementById("f-status").value,notes:document.getElementById("f-notes").value.trim(),tags,blueprint:blueprintOutput};
+  if(editingId){
+    projects=projects.map(p=>p.id===editingId?{...p,...data,updatedAt:new Date().toISOString()}:p);
+    showToast("Project updated ✓");
+  } else {
+    projects.unshift({...data,id:Date.now().toString(),createdAt:new Date().toISOString()});
+    showToast("Project saved ✓");
+  }
+  persist(); renderFilters(); renderCards(); closeModal();
+}
+function deleteCurrentProject(){
+  if(!editingId||!confirm("Delete this project?"))return;
+  projects=projects.filter(p=>p.id!==editingId);
+  persist(); renderFilters(); renderCards(); closeModal(); showToast("Project deleted");
+}
+
+// ── BLUEPRINT FORMAT ───────────────────────────────────────
+function formatBlueprint(text){
+  return text
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── GENERATE BLUEPRINT ─────────────────────────────────────
+async function generateBlueprint(){
+  if(!aiEngine){ openChooser(); return; }
+  const needsKey = (aiEngine==="gemini"&&!geminiApiKey)||(aiEngine==="claude"&&!claudeApiKey)||(aiEngine==="groq"&&!groqApiKey);
+  if(needsKey){ closeModal(); switchView("settings"); showToast("Add your API key in Settings → AI Engine"); return; }
+
+  const title=document.getElementById("f-title").value.trim();
+  if(!title){showToast("Enter a project name first");return;}
+  const cat  =categories.find(c=>c.id===document.getElementById("f-category").value);
+  const notes=document.getElementById("f-notes").value.trim();
+
+  document.getElementById("shimmer").style.display="flex";
+  document.getElementById("blueprint-output").style.display="none";
+  document.getElementById("blueprint-btn").disabled=true;
+  document.getElementById("blueprint-btn").textContent="Generating…";
+
+  const prompt=`You are an AI project copilot for makers, engineers, and homelab builders.
+
+Generate a structured Project Blueprint for:
+Project: "${title}"
+Category: ${cat?.label||"General"}
+${notes?"Context: "+notes:""}
+
+Format your response EXACTLY like this (use these exact headers):
+
+## 📋 SUMMARY
+2-3 sentence overview of what this project does and why.
+
+## 🔧 HARDWARE
+- List key hardware components, sensors, microcontrollers, modules needed
+
+## 💻 SOFTWARE
+- List software, firmware, platforms, libraries, integrations needed
+
+## ⚠️ RISKS
+- List 3-4 potential challenges or blockers to watch out for
+
+## 🏁 MILESTONES
+- Phase 1: [description]
+- Phase 2: [description]
+- Phase 3: [description]
+
+## ✅ FIRST STEP
+One specific, concrete action to take today to start this project.
+
+Be practical and specific to makers/homelab/IoT context. Keep each section concise.`;
+
+  try{
+    if(aiEngine==="claude")        blueprintOutput = await runClaude(prompt);
+    else if(aiEngine==="gemini")   blueprintOutput = await runGemini(prompt);
+    else if(aiEngine==="groq")     blueprintOutput = await runGroq(prompt);
+    else                            blueprintOutput = await runPollinations(prompt);
+  }catch(e){
+    blueprintOutput = "## ⚠️ Error\nCould not generate blueprint: "+e.message+"\n\nTip: Check Settings → AI Engine";
+  }
+
+  document.getElementById("shimmer").style.display="none";
+  const bpEl=document.getElementById("blueprint-output");
+  bpEl.innerHTML=formatBlueprint(blueprintOutput);
+  bpEl.style.display="block";
+  document.getElementById("blueprint-btn").disabled=false;
+  document.getElementById("blueprint-btn").textContent="Regenerate →";
+}
+
+// ── AI RUNNERS ─────────────────────────────────────────────
+async function runPollinations(prompt){
+  const res=await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+  if(!res.ok) throw new Error("Pollinations error: "+res.status);
+  const text=await res.text();
+  if(!text||text.trim().length<20) throw new Error("Empty response");
+  return text.trim();
+}
+async function runGemini(prompt){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${geminiApiKey}`;
+  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message);
+  return data.candidates?.[0]?.content?.parts?.[0]?.text||"No response.";
+}
+async function runGroq(prompt){
+  const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+groqApiKey},
+    body:JSON.stringify({model:"llama3-8b-8192",messages:[{role:"user",content:prompt}],max_tokens:800})
+  });
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message);
+  return data.choices?.[0]?.message?.content||"No response.";
+}
+async function runClaude(prompt){
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":claudeApiKey,"anthropic-version":"2023-06-01"},
+    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:800,messages:[{role:"user",content:prompt}]})
+  });
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message);
+  return data.content?.map(b=>b.text||"").join("\n").trim()||"No response.";
+}
+
+// ── AI CHOOSER ─────────────────────────────────────────────
+function openChooser(){
+  chooserPending=null;
+  ["pollinations","groq","gemini","claude"].forEach(e=>{
+    const el=document.getElementById("chooser-"+e);
+    if(el) el.classList.remove("selected");
+  });
+  document.getElementById("chooser-overlay").classList.add("open");
+}
+function chooserSelect(engine){
+  chooserPending=engine;
+  ["pollinations","groq","gemini","claude"].forEach(e=>{
+    const el=document.getElementById("chooser-"+e);
+    if(el) el.classList.toggle("selected",e===engine);
+  });
+}
+function confirmChooser(){
+  if(!chooserPending){showToast("Please select an engine first");return;}
+  aiEngine=chooserPending;
+  localStorage.setItem(SK_AI_ENGINE,aiEngine);
+  document.getElementById("chooser-overlay").classList.remove("open");
+  updateBlueprintButton();
+  const needsKey=(aiEngine==="gemini"&&!geminiApiKey)||(aiEngine==="claude"&&!claudeApiKey)||(aiEngine==="groq"&&!groqApiKey);
+  if(needsKey){ closeModal(); switchView("settings"); showToast("Add your API key in Settings → AI Engine"); }
+  else { showToast(aiEngine==="pollinations"?"Pollinations AI ready ✓":"AI engine ready ✓"); setTimeout(generateBlueprint,400); }
+}
+
+// ── VOICE ──────────────────────────────────────────────────
+function initVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){document.querySelectorAll(".voice-btn,.notes-voice-btn").forEach(b=>{b.style.opacity="0.3";b.style.cursor="not-allowed";b.onclick=()=>showToast("Use Chrome on Android for voice");});return;}
+  recognition=new SR(); recognition.continuous=false; recognition.interimResults=true; recognition.lang="en-US";
+  recognition.onresult=e=>{const t=Array.from(e.results).map(r=>r[0].transcript).join("");document.getElementById(listeningField==="title"?"f-title":"f-notes").value=t;};
+  recognition.onend=()=>stopVoice();
+  recognition.onerror=e=>{stopVoice();if(e.error!=="aborted")showToast("Voice: "+e.error);};
+}
+function toggleVoice(field){
+  if(listeningField===field){stopVoice();return;}
+  if(listeningField)stopVoice();
+  listeningField=field;
+  const btn=document.getElementById(field==="title"?"voice-title-btn":"voice-notes-btn");
+  btn.classList.add("listening"); btn.textContent="⏹";
+  try{recognition.start();showToast("Listening… speak now");}catch{stopVoice();}
+}
+function stopVoice(){
+  listeningField=null;
+  ["voice-title-btn","voice-notes-btn"].forEach(id=>{const b=document.getElementById(id);if(b){b.classList.remove("listening");b.textContent="🎙";}});
+  try{recognition?.stop();}catch{}
+}
+
+// ── SETTINGS ───────────────────────────────────────────────
+function renderSettings(){renderEngineUI();renderCatList();renderStatusList();renderIconPicker();renderColorPicker();}
+function renderEngineUI(){
+  ["pollinations","groq","gemini","claude"].forEach(e=>{
+    const row=document.getElementById("engine-row-"+e);
+    const radio=document.getElementById("radio-"+e);
+    if(row)  row.classList.toggle("active-engine",aiEngine===e);
+    if(radio) radio.classList.toggle("checked",aiEngine===e);
+  });
+  const needsKey=aiEngine==="gemini"||aiEngine==="claude"||aiEngine==="groq";
+  document.getElementById("api-key-section").style.display=needsKey?"block":"none";
+  if(!needsKey) return;
+  const keyInput=document.getElementById("settings-api-key");
+  const keyStatus=document.getElementById("api-key-status");
+  const keyLabel=document.getElementById("api-key-label");
+  const keyNotice=document.getElementById("api-key-notice");
+  const cfgs={
+    groq:   {label:"Your Groq API Key",   notice:"🔒 Free key at console.groq.com — no credit card. Stored only on this device.", placeholder:"gsk_…",    check:()=>groqApiKey,   hint:"No Groq key yet — get yours free at console.groq.com"},
+    gemini: {label:"Your Gemini API Key", notice:"🔒 Free key at aistudio.google.com — no credit card. Stored only on this device.", placeholder:"AIza…", check:()=>geminiApiKey, hint:"No Gemini key yet — get yours free at aistudio.google.com"},
+    claude: {label:"Your Claude API Key", notice:"🔒 Stored only in this browser. Never shared or in source code.",                 placeholder:"sk-ant-…",check:()=>claudeApiKey, hint:"No Claude key yet — get yours at console.anthropic.com"},
+  };
+  const cfg=cfgs[aiEngine];
+  keyLabel.textContent=cfg.label; keyNotice.textContent=cfg.notice;
+  const saved=!!cfg.check();
+  keyInput.value=""; keyInput.placeholder=saved?"••••••••••••• (saved)":cfg.placeholder;
+  keyStatus.textContent=saved?"✓ Key saved on this device":cfg.hint;
+  keyStatus.className="api-key-status "+(saved?"saved":"missing");
+}
+function setEngine(engine){
+  aiEngine=engine; localStorage.setItem(SK_AI_ENGINE,aiEngine);
+  renderEngineUI(); updateBlueprintButton();
+  const labels={pollinations:"Pollinations AI selected ✓",groq:"Groq selected ✓",gemini:"Google Gemini selected ✓",claude:"Claude API selected ✓"};
+  showToast(labels[engine]||"Engine selected ✓");
+}
+function saveApiKey(){
+  const val=document.getElementById("settings-api-key").value.trim();
+  if(!val){showToast("Enter your API key first");return;}
+  if(aiEngine==="groq"&&!val.startsWith("gsk_")){showToast("Groq key should start with gsk_…");return;}
+  if(aiEngine==="gemini"&&!val.startsWith("AIza")){showToast("Gemini key should start with AIza…");return;}
+  if(aiEngine==="claude"&&!val.startsWith("sk-ant-")){showToast("Claude key should start with sk-ant-…");return;}
+  if(aiEngine==="groq")        {groqApiKey=val;   localStorage.setItem(SK_GROQ_KEY,val);}
+  else if(aiEngine==="gemini") {geminiApiKey=val; localStorage.setItem(SK_GEMINI_KEY,val);}
+  else if(aiEngine==="claude") {claudeApiKey=val; localStorage.setItem(SK_CLAUDE_KEY,val);}
+  renderEngineUI(); updateBlueprintButton();
+  showToast("Key saved on this device ✓");
+}
+
+// ── CATEGORIES ─────────────────────────────────────────────
+function renderCatList(){
+  const el=document.getElementById("cat-list");
+  if(!categories.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;padding:12px 0;">No categories yet.</div>`;return;}
+  el.innerHTML=categories.map((c,i)=>`
+    <div class="settings-item">
+      <div class="settings-item-row">
+        <div class="settings-item-icon" style="background:${c.color}22;">${c.icon}</div>
+        <div class="settings-item-body"><div class="settings-item-name">${esc(c.label)}</div><div class="settings-item-meta">${projects.filter(p=>p.category===c.id).length} projects</div></div>
+        <div class="settings-item-actions">
+          <button class="btn-icon" onclick="toggleRenameRow('cat','${c.id}')">✎</button>
+          ${i>0?`<button class="btn-icon" onclick="moveCat(${i},-1)">↑</button>`:""}
+          ${i<categories.length-1?`<button class="btn-icon" onclick="moveCat(${i},1)">↓</button>`:""}
+          <button class="btn-icon danger" onclick="deleteCat('${c.id}')">✕</button>
+        </div>
+      </div>
+      <div class="rename-row" id="cat-rename-${c.id}">
+        <input class="rename-input" id="cat-rename-input-${c.id}" value="${esc(c.label)}" onkeydown="if(event.key==='Enter')saveRename('cat','${c.id}')" />
+        <button class="btn-rename-save" onclick="saveRename('cat','${c.id}')">Save</button>
+        <button class="btn-rename-cancel" onclick="toggleRenameRow('cat','${c.id}')">✕</button>
+      </div>
+    </div>`).join("");
+}
+function renderStatusList(){
+  const el=document.getElementById("status-list");
+  if(!statuses.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;padding:12px 0;">No statuses.</div>`;return;}
+  el.innerHTML=statuses.map((s,i)=>`
+    <div class="settings-item">
+      <div class="settings-item-row">
+        <div style="width:12px;height:12px;border-radius:50%;background:${s.color};flex-shrink:0;"></div>
+        <div class="settings-item-body"><div class="settings-item-name">${esc(s.label)}</div><div class="settings-item-meta">${projects.filter(p=>p.status===s.id).length} projects</div></div>
+        <div class="settings-item-actions">
+          <button class="btn-icon" onclick="toggleRenameRow('stat','${s.id}')">✎</button>
+          ${i>0?`<button class="btn-icon" onclick="moveStat(${i},-1)">↑</button>`:""}
+          ${i<statuses.length-1?`<button class="btn-icon" onclick="moveStat(${i},1)">↓</button>`:""}
+          <button class="btn-icon danger" onclick="deleteStat('${s.id}')">✕</button>
+        </div>
+      </div>
+      <div class="rename-row" id="stat-rename-${s.id}">
+        <input class="rename-input" id="stat-rename-input-${s.id}" value="${esc(s.label)}" onkeydown="if(event.key==='Enter')saveRename('stat','${s.id}')" />
+        <button class="btn-rename-save" onclick="saveRename('stat','${s.id}')">Save</button>
+        <button class="btn-rename-cancel" onclick="toggleRenameRow('stat','${s.id}')">✕</button>
+      </div>
+    </div>`).join("");
+}
+function toggleRenameRow(type,id){
+  const row=document.getElementById(`${type}-rename-${id}`);
+  const isOpen=row.classList.contains("open");
+  document.querySelectorAll(".rename-row.open").forEach(r=>r.classList.remove("open"));
+  if(!isOpen){row.classList.add("open");setTimeout(()=>document.getElementById(`${type}-rename-input-${id}`).focus(),50);}
+}
+function saveRename(type,id){
+  const val=document.getElementById(`${type}-rename-input-${id}`).value.trim();
+  if(!val){showToast("Name can't be empty");return;}
+  if(type==="cat"){categories=categories.map(c=>c.id===id?{...c,label:val}:c);persist();renderCatList();renderFilters();populateSelects();}
+  else            {statuses=statuses.map(s=>s.id===id?{...s,label:val}:s);persist();renderStatusList();renderFilters();populateSelects();}
+  showToast("Renamed ✓");
+}
+function renderIconPicker(){document.getElementById("icon-picker").innerHTML=ICONS.map(ic=>`<div class="icon-option ${ic===newCatIcon?"selected":""}" onclick="selectIcon('${ic}')">${ic}</div>`).join("");}
+function renderColorPicker(){document.getElementById("color-picker").innerHTML=COLORS.map(col=>`<div class="color-option ${col===newCatColor?"selected":""}" style="background:${col}" onclick="selectColor('${col}')"></div>`).join("");}
+function selectIcon(ic){newCatIcon=ic;renderIconPicker();}
+function selectColor(col){newCatColor=col;renderColorPicker();}
+function addCategory(){
+  const name=document.getElementById("new-cat-name").value.trim();
+  if(!name){showToast("Enter a category name");return;}
+  categories.push({id:"cat_"+Date.now(),label:name,icon:newCatIcon,color:newCatColor});
+  persist();populateSelects();renderCatList();renderFilters();
+  document.getElementById("new-cat-name").value="";
+  showToast(`"${name}" added ✓`);
+}
+function moveCat(i,dir){const j=i+dir;if(j<0||j>=categories.length)return;[categories[i],categories[j]]=[categories[j],categories[i]];persist();renderCatList();renderFilters();populateSelects();}
+function deleteCat(id){const n=projects.filter(p=>p.category===id).length;if(n&&!confirm(`${n} project(s) use this. Delete anyway?`))return;categories=categories.filter(c=>c.id!==id);persist();renderCatList();renderFilters();populateSelects();showToast("Removed");}
+function addStatus(){
+  const name=document.getElementById("new-status-name").value.trim();
+  const color=document.getElementById("new-status-color").value;
+  if(!name){showToast("Enter a status name");return;}
+  statuses.push({id:"stat_"+Date.now(),label:name,color});
+  persist();populateSelects();renderStatusList();renderFilters();
+  document.getElementById("new-status-name").value="";
+  showToast(`"${name}" added ✓`);
+}
+function moveStat(i,dir){const j=i+dir;if(j<0||j>=statuses.length)return;[statuses[i],statuses[j]]=[statuses[j],statuses[i]];persist();renderStatusList();renderFilters();populateSelects();}
+function deleteStat(id){const n=projects.filter(p=>p.status===id).length;if(n&&!confirm(`${n} project(s) use this. Delete anyway?`))return;statuses=statuses.filter(s=>s.id!==id);persist();renderStatusList();renderFilters();populateSelects();showToast("Removed");}
+function clearAllProjects(){if(!confirm(`Delete all ${projects.length} project(s)? Cannot be undone.`))return;projects=[];persist();renderFilters();renderCards();showToast("All projects cleared");}
+function resetDefaults(){if(!confirm("Restore defaults? Your projects are kept."))return;categories=JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));statuses=JSON.parse(JSON.stringify(DEFAULT_STATUSES));persist();renderSettings();renderFilters();populateSelects();showToast("Defaults restored");}
+
+// ── TICKER ─────────────────────────────────────────────────
+async function initTicker(){
+  try{
+    const res=await fetch(TICKER_URL+"?t="+Date.now());
+    const data=await res.json();
+    if(Array.isArray(data)&&data.length){tickerItems=data;localStorage.setItem(SK_TICKER,JSON.stringify(data));}
+  }catch(_){
+    try{tickerItems=JSON.parse(localStorage.getItem(SK_TICKER))||[];}catch(_){}
+  }
+  if(!tickerItems.length) tickerItems=FALLBACK_TICKER;
+  renderTicker();
+}
+function renderTicker(){
+  const track=document.getElementById("ticker-track");
+  if(!track) return;
+  const all=[...tickerItems,...tickerItems];
+  let html="";
+  all.forEach((item,idx)=>{
+    const cfg=TYPE_CONFIG[item.type]||TYPE_CONFIG.tip;
+    html+=`<span class="ticker-item" data-idx="${idx%tickerItems.length}" style="color:${cfg.color}"><span>${cfg.icon}</span><span>${item.text}</span></span><span class="ticker-sep">·····</span>`;
+  });
+  track.innerHTML=html;
+  const dur=Math.max(40,Math.min(100,tickerItems.reduce((a,i)=>a+i.text.length,0)*0.35));
+  track.style.animation=`ticker-scroll ${dur}s linear infinite`;
+}
+function handleTickerTap(e){
+  const item=e.target.closest(".ticker-item");
+  if(!item) return;
+  const data=tickerItems[parseInt(item.dataset.idx)];
+  if(!data) return;
+  if(data.type==="version"||data.type==="feature") switchView("about");
+  else if(data.type==="ai") switchView("settings");
+  else if(data.type==="community"){
+    if(data.text.includes("github")) window.open("https://github.com/kamer79","_blank");
+    else if(data.text.includes("paypal")) window.open("https://paypal.me/KarimAmer914","_blank");
+  }
+}
+
+// ── UPDATE SYSTEM ──────────────────────────────────────────
+function showUpdateModal(version){
+  document.getElementById("update-version").textContent="v"+version;
+  const notes=VERSION_NOTES[version]||["Bug fixes and improvements"];
+  document.getElementById("update-whats-new").innerHTML=notes.map(n=>`<div class="update-item"><span class="update-item-dot">◈</span><span>${n}</span></div>`).join("");
+  document.getElementById("update-overlay").classList.add("open");
+}
+function dismissUpdate(){document.getElementById("update-overlay").classList.remove("open");showToast("Tap 'Check for Update' in About anytime");}
+function applyUpdate(){document.getElementById("update-overlay").classList.remove("open");showToast("Updating…");setTimeout(()=>window.location.reload(true),600);}
+function checkForUpdate(){
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.getRegistration().then(reg=>{if(reg)reg.update().then(()=>showToast("Checking for updates…"));});
+  }
+}
+
+// ── TOAST ──────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2800);
+}
+
+// ── GLOBAL ERROR HANDLER ───────────────────────────────────
+window.onerror=function(msg,src,line,col,err){
+  document.body.innerHTML='<div style="padding:40px;color:#e2e8f0;font-family:sans-serif;background:#0a0a0f;min-height:100vh;"><div style="font-size:24px;margin-bottom:16px;">⚠️ MakerMind</div><div style="color:#f59e0b;margin-bottom:12px;">Something went wrong loading the app.</div><div style="font-size:13px;color:#6b7280;margin-bottom:20px;">'+msg+'</div><button onclick="window.location.reload()" style="background:#f59e0b;color:#000;border:none;padding:12px 24px;border-radius:10px;font-size:14px;cursor:pointer;">Reload App</button></div>';
+  return true;
+};
+
+try{ init(); } catch(e){ window.onerror(e.message,"",0,0,e); }
+</script>
+</body>
+</html>
