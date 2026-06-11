@@ -87,3 +87,18 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 - Falls back to cached messages offline, then built-in fallback if no cache
 - Tappable messages — version/feature taps open About, AI taps open Settings, community taps open links
 - ticker.json file — edit on GitHub anytime to push new tips, announcements or feature hints to all users
+
+---
+
+## [v1.6.0] — 2025-06-08
+### Added
+- Pollinations AI engine — completely free, no account or API key needed
+- Google Gemini engine — free API key from aistudio.google.com (1,500 requests/day, no credit card)
+- 3-engine chooser: Pollinations · Google Gemini · Claude API
+- Gemini API key stored on-device only, never in source code
+- Engine-specific key validation (Gemini keys start with AIza…, Claude with sk-ant-…)
+
+### Changed
+- Removed Transformers.js (on-device model) — was too slow and gave poor quality on mobile
+- AI engine chooser now shows all 3 options with clear descriptions
+- Settings → AI Engine updated to show correct key instructions per engine
