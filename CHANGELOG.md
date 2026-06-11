@@ -102,3 +102,24 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 - Removed Transformers.js (on-device model) — was too slow and gave poor quality on mobile
 - AI engine chooser now shows all 3 options with clear descriptions
 - Settings → AI Engine updated to show correct key instructions per engine
+
+---
+
+## [v2.0.0-alpha1] — 2025-06-08
+### Major — MakerMind reborn as AI Project Copilot
+### Added
+- Repositioned as AI Project Copilot for Makers & Builders
+- Structured AI Project Blueprint with 6 sections: Summary · Hardware · Software · Risks · Milestones · First Step
+- 4 AI engines: Pollinations (free, no key) · Groq/Llama 3 (free key) · Google Gemini (free key) · Claude API (paid key)
+- Direct links to get free API keys shown in Settings and chooser
+- Automatic silent migration from v1 ideas → v2 projects schema
+- New maker-focused default categories: Homelab · Smart Home · ESP32 · 3D Printing · Electronics
+- Groq API key support (starts with gsk_…)
+- Complete clean rebuild — no accumulated patch issues
+
+### Changed
+- "Ideas" renamed to "Projects" throughout
+- "AI Expansion" renamed to "Project Blueprint"
+- "Expand with AI" renamed to "Generate Blueprint"
+- App tagline updated to "AI Project Copilot for Makers & Builders"
+- Bottom nav: "Ideas" → "Projects"
