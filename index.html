@@ -918,14 +918,33 @@ Be practical and specific to makers/homelab/IoT context. Keep each section conci
 
 // ── AI RUNNERS ─────────────────────────────────────────────
 async function runPollinations(prompt){
-  const res=await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-  if(!res.ok) throw new Error("Pollinations error: "+res.status);
-  const text=await res.text();
-  if(!text||text.trim().length<20) throw new Error("Empty response");
-  return text.trim();
+  // Try up to 3 times with increasing delay
+  const delays=[0,3000,6000];
+  let lastErr;
+  for(let i=0;i<delays.length;i++){
+    if(delays[i]>0){
+      showToast(`Pollinations busy, retrying in ${delays[i]/1000}s…`);
+      await new Promise(r=>setTimeout(r,delays[i]));
+    }
+    try{
+      const res=await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+      if(res.status===429){
+        lastErr=new Error("Pollinations is rate-limited (429). Try Groq — it's free and faster. Go to Settings → AI Engine.");
+        continue;
+      }
+      if(!res.ok) throw new Error("Pollinations error: "+res.status);
+      const text=await res.text();
+      if(!text||text.trim().length<20) throw new Error("Empty response from Pollinations");
+      return text.trim();
+    }catch(e){
+      if(e.message.includes("429")||e.message.includes("rate-limit")){lastErr=e;continue;}
+      throw e;
+    }
+  }
+  throw lastErr||new Error("Pollinations unavailable right now. Switch to Groq (free key at console.groq.com) in Settings → AI Engine.");
 }
 async function runGemini(prompt){
-  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${geminiApiKey}`;
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
   const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
   const data=await res.json();
   if(data.error) throw new Error(data.error.message);
@@ -935,7 +954,7 @@ async function runGroq(prompt){
   const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
     method:"POST",
     headers:{"Content-Type":"application/json","Authorization":"Bearer "+groqApiKey},
-    body:JSON.stringify({model:"llama3-8b-8192",messages:[{role:"user",content:prompt}],max_tokens:800})
+    body:JSON.stringify({model:"llama-3.1-8b-instant",messages:[{role:"user",content:prompt}],max_tokens:800})
   });
   const data=await res.json();
   if(data.error) throw new Error(data.error.message);
