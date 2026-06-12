@@ -306,9 +306,9 @@
         <div class="ai-engine-row" id="engine-row-groq" onclick="setEngine('groq')">
           <div class="ai-radio" id="radio-groq"></div>
           <div class="ai-engine-body">
-            <div class="ai-engine-name">Groq (Llama 3) <span class="engine-badge badge-free">FREE KEY</span></div>
-            <div class="ai-engine-detail">Fast, high quality, free API key. Powered by Llama 3 on Groq's fast inference.</div>
-            <a class="ai-engine-link" href="https://console.groq.com" target="_blank" onclick="event.stopPropagation()">→ Get free key at console.groq.com</a>
+            <div class="ai-engine-name">OpenRouter <span class="engine-badge badge-free">FREE KEY</span></div>
+            <div class="ai-engine-detail">Access free models (Llama, Gemma, Mistral) via OpenRouter. Free API key, no credit card. Browser-compatible.</div>
+            <a class="ai-engine-link" href="https://openrouter.ai/keys" target="_blank" onclick="event.stopPropagation()">→ Get free key at openrouter.ai/keys</a>
           </div>
         </div>
         <div class="ai-engine-row" id="engine-row-gemini" onclick="setEngine('gemini')">
@@ -531,11 +531,11 @@
       </div>
     </div>
     <div class="engine-option" id="chooser-groq" onclick="chooserSelect('groq')">
-      <div class="engine-icon">⚡</div>
+      <div class="engine-icon">🔀</div>
       <div>
-        <div class="engine-name">Groq (Llama 3) <span class="engine-badge badge-free">FREE KEY</span></div>
-        <div class="engine-desc">Fast and high quality. Free key at console.groq.com — no credit card.</div>
-        <a class="engine-link" href="https://console.groq.com" target="_blank" onclick="event.stopPropagation()">→ console.groq.com</a>
+        <div class="engine-name">OpenRouter <span class="engine-badge badge-free">FREE KEY</span></div>
+        <div class="engine-desc">Free access to Llama, Gemma, Mistral and more. Free key at openrouter.ai — no credit card needed.</div>
+        <a class="engine-link" href="https://openrouter.ai/keys" target="_blank" onclick="event.stopPropagation()">→ openrouter.ai/keys</a>
       </div>
     </div>
     <div class="engine-option" id="chooser-gemini" onclick="chooserSelect('gemini')">
@@ -951,19 +951,34 @@ async function runGemini(prompt){
   return data.candidates?.[0]?.content?.parts?.[0]?.text||"No response.";
 }
 async function runGroq(prompt){
-  const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+  // Using OpenRouter - CORS compatible, free models available
+  const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
     method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+groqApiKey},
-    body:JSON.stringify({model:"llama-3.1-8b-instant",messages:[{role:"user",content:prompt}],max_tokens:800})
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+groqApiKey,
+      "HTTP-Referer":"https://kamer79.github.io/makermind",
+      "X-Title":"MakerMind"
+    },
+    body:JSON.stringify({
+      model:"meta-llama/llama-3.1-8b-instruct:free",
+      messages:[{role:"user",content:prompt}],
+      max_tokens:800
+    })
   });
   const data=await res.json();
-  if(data.error) throw new Error(data.error.message);
+  if(data.error) throw new Error(data.error.message||JSON.stringify(data.error));
   return data.choices?.[0]?.message?.content||"No response.";
 }
 async function runClaude(prompt){
   const res=await fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":claudeApiKey,"anthropic-version":"2023-06-01"},
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key":claudeApiKey,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
     body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:800,messages:[{role:"user",content:prompt}]})
   });
   const data=await res.json();
@@ -1038,7 +1053,7 @@ function renderEngineUI(){
   const keyLabel=document.getElementById("api-key-label");
   const keyNotice=document.getElementById("api-key-notice");
   const cfgs={
-    groq:   {label:"Your Groq API Key",   notice:"🔒 Free key at console.groq.com — no credit card. Stored only on this device.", placeholder:"gsk_…",    check:()=>groqApiKey,   hint:"No Groq key yet — get yours free at console.groq.com"},
+    groq:   {label:"Your OpenRouter API Key", notice:"🔒 Free key at openrouter.ai/keys — no credit card. Stored only on this device.", placeholder:"sk-or-…", check:()=>groqApiKey, hint:"No OpenRouter key yet — get yours free at openrouter.ai/keys"},
     gemini: {label:"Your Gemini API Key", notice:"🔒 Free key at aistudio.google.com — no credit card. Stored only on this device.", placeholder:"AIza…", check:()=>geminiApiKey, hint:"No Gemini key yet — get yours free at aistudio.google.com"},
     claude: {label:"Your Claude API Key", notice:"🔒 Stored only in this browser. Never shared or in source code.",                 placeholder:"sk-ant-…",check:()=>claudeApiKey, hint:"No Claude key yet — get yours at console.anthropic.com"},
   };
@@ -1052,13 +1067,13 @@ function renderEngineUI(){
 function setEngine(engine){
   aiEngine=engine; localStorage.setItem(SK_AI_ENGINE,aiEngine);
   renderEngineUI(); updateBlueprintButton();
-  const labels={pollinations:"Pollinations AI selected ✓",groq:"Groq selected ✓",gemini:"Google Gemini selected ✓",claude:"Claude API selected ✓"};
+  const labels={pollinations:"Pollinations AI selected ✓",groq:"OpenRouter selected ✓",gemini:"Google Gemini selected ✓",claude:"Claude API selected ✓"};
   showToast(labels[engine]||"Engine selected ✓");
 }
 function saveApiKey(){
   const val=document.getElementById("settings-api-key").value.trim();
   if(!val){showToast("Enter your API key first");return;}
-  if(aiEngine==="groq"&&!val.startsWith("gsk_")){showToast("Groq key should start with gsk_…");return;}
+  if(aiEngine==="groq"&&!val.startsWith("sk-or-")){showToast("OpenRouter key should start with sk-or-…");return;}
   if(aiEngine==="gemini"&&!val.startsWith("AIza")){showToast("Gemini key should start with AIza…");return;}
   if(aiEngine==="claude"&&!val.startsWith("sk-ant-")){showToast("Claude key should start with sk-ant-…");return;}
   if(aiEngine==="groq")        {groqApiKey=val;   localStorage.setItem(SK_GROQ_KEY,val);}
