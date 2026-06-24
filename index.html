@@ -331,11 +331,34 @@
 
     <!-- Tab: Tasks -->
     <div class="tab-pane" id="tab-tasks">
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <input class="form-input" id="f-task-input" placeholder="Add a task…" style="flex:1;" />
-        <button class="btn-primary" onclick="addTask()" style="padding:10px 16px;">+ Add</button>
+      <!-- Add task form -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input class="form-input" id="f-task-input" placeholder="Add a task…" style="flex:1;min-width:150px;" />
+        <select id="f-task-effort" class="form-input" style="width:auto;padding:10px 13px;flex-shrink:0;">
+          <option value="30m">30 min</option>
+          <option value="1h">1 hour</option>
+          <option value="2h">2 hours</option>
+          <option value="4h">4 hours</option>
+          <option value="1d">1 day</option>
+          <option value="2d">2 days</option>
+          <option value="1w">1 week</option>
+        </select>
+        <button class="btn-primary" onclick="addKanbanTask()" style="padding:10px 16px;flex-shrink:0;">+ Add</button>
       </div>
-      <div id="task-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+      <!-- Progress bar -->
+      <div style="margin:12px 0 16px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:4px;">
+          <span id="task-progress-label">0/0 tasks done</span>
+          <span id="task-progress-percent">0%</span>
+        </div>
+        <div style="background:var(--border);border-radius:20px;height:8px;overflow:hidden;position:relative;">
+          <div id="task-progress-bar" style="background:var(--amber);height:100%;width:0%;transition:width 0.4s;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#0a0a0f;font-weight:700;"></div>
+        </div>
+      </div>
+
+      <!-- Kanban board -->
+      <div id="kanban-container"></div>
     </div>
 
     <!-- Tab: Copilot -->
@@ -356,6 +379,8 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<script src="js/kanban.js"></script>
 
 <script>
 // ─────────────────────────────────────────────────────────────
@@ -507,6 +532,9 @@ function openModal() {
   document.getElementById("chat-messages").innerHTML = "";
   document.getElementById("delete-btn").style.display = "none";
   document.getElementById("save-btn").textContent = "Save Project";
+  // Clear kanban container
+  const container = document.getElementById("kanban-container");
+  if (container) container.innerHTML = '';
   switchTab("tab-project");
   document.getElementById("overlay").classList.add("open");
 }
@@ -527,13 +555,19 @@ function openEditModal(id) {
   document.getElementById("delete-btn").style.display = "block";
   document.getElementById("save-btn").textContent = "Update";
   renderBlueprint();
-  renderTasks();
+  renderKanban(tasks);
   renderChat();
   switchTab("tab-project");
   document.getElementById("overlay").classList.add("open");
 }
 
-function closeModal() { document.getElementById("overlay").classList.remove("open"); stopVoice(); }
+function closeModal() {
+  document.getElementById("overlay").classList.remove("open");
+  stopVoice();
+  // Clear kanban container
+  const container = document.getElementById("kanban-container");
+  if (container) container.innerHTML = '';
+}
 
 function saveProject() {
   const title = document.getElementById("f-title").value.trim();
@@ -641,6 +675,22 @@ Be practical and specific. Keep each section concise.`;
     blueprintText = result;
     renderBlueprint();
     document.getElementById("bp-status").textContent = "Blueprint generated ✓";
+    
+    // Auto-populate tasks from blueprint
+    const taskMatch = result.match(/## First Tasks\n([\s\S]*?)(?=\n##|$)/);
+    if (taskMatch) {
+      const taskLines = taskMatch[1].split('\n').filter(line => line.trim().startsWith('-'));
+      if (taskLines.length) {
+        tasks = taskLines.map(line => ({
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
+          text: line.replace(/^-\s*\[\s*\]\s*/, '').trim(),
+          effort: '1h',
+          status: 'todo'
+        }));
+        renderKanban(tasks);
+      }
+    }
+    
     showToast("Blueprint ready ✓");
   } catch (e) {
     document.getElementById("bp-status").textContent = "Error: " + e.message;
@@ -651,7 +701,6 @@ Be practical and specific. Keep each section concise.`;
 // ── AI CALL ──
 async function callAI(prompt) {
   if (aiEngine === "pollinations") {
-    // Pollinations free text generation
     const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
     if (!res.ok) throw new Error("Pollinations error: " + res.status);
     return await res.text();
@@ -750,31 +799,6 @@ Return: { "tips": ["tip1","tip2","tip3"], "risks": ["risk1","risk2"], "resources
     showToast("Analysis failed");
   }
 }
-
-// ── TASKS ──
-function renderTasks() {
-  const container = document.getElementById("task-list");
-  if (!tasks.length) { container.innerHTML = '<div style="color:var(--text3);font-size:12px;">No tasks yet. Generate a blueprint to get started.</div>'; return; }
-  container.innerHTML = tasks.map((t, i) => `
-    <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:8px;padding:8px 12px;border:1px solid var(--border);">
-      <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${i})" style="accent-color:var(--amber);" />
-      <span style="${t.done ? 'text-decoration:line-through;color:var(--text3);' : ''}flex:1;">${esc(t.text)}</span>
-      <button onclick="removeTask(${i})" style="background:transparent;border:none;color:var(--red);cursor:pointer;">✕</button>
-    </div>
-  `).join("");
-}
-
-function addTask() {
-  const input = document.getElementById("f-task-input");
-  const text = input.value.trim();
-  if (!text) return;
-  tasks.push({ text, done: false });
-  input.value = "";
-  renderTasks();
-}
-
-function toggleTask(i) { tasks[i].done = !tasks[i].done; renderTasks(); }
-function removeTask(i) { tasks.splice(i, 1); renderTasks(); }
 
 // ── COPILOT CHAT ──
 function renderChat() {
