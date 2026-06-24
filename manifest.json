@@ -1,7 +1,7 @@
 {
-  "name": "MakerMind",
+  "name": "MakerMind 2.0 Alpha",
   "short_name": "MakerMind",
-  "description": "Your AI-powered project brain for makers and builders",
+  "description": "AI Project Copilot for Makers & Builders",
   "start_url": "/makermind/",
   "scope": "/makermind/",
   "display": "standalone",
@@ -10,32 +10,29 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://kamer79.github.io/makermind/icons/icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://kamer79.github.io/makermind/icons/icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "https://kamer79.github.io/makermind/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://kamer79.github.io/makermind/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
-  "categories": [
-    "productivity",
-    "utilities"
-  ]
+  "categories": ["productivity", "utilities"]
 }
