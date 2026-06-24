@@ -10,9 +10,9 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 
 ---
 
-## [v2.0.0-alpha1] — 2026-06-24
+## [v2.0.0] — 2026-06-24
 
-### Major — Complete Rewrite: MakerMind 2.0 Alpha
+### Major — Complete Rewrite: MakerMind 2.0
 
 MakerMind is reborn as an **AI Project Copilot for Makers & Builders**.
 
@@ -21,7 +21,7 @@ MakerMind is reborn as an **AI Project Copilot for Makers & Builders**.
 - **New Project Schema** with structured fields:
   - Project details: title, category, status, notes, tags
   - Blueprint: summary, hardware, software, risks, milestones, first tasks
-  - Tasks: with status tracking (To Do / Doing / Done) and effort estimates
+  - Tasks: basic task list (initial version)
   - Resources: parts, tools, components list
   - Chat: Copilot conversation history per project
 - **5 AI Engines** with flexible selection:
@@ -42,14 +42,15 @@ MakerMind is reborn as an **AI Project Copilot for Makers & Builders**.
   - Risks (potential issues to watch for)
   - Resources (suggested components, tutorials, similar projects)
   - Health Check (complexity score, completeness score, missing items)
-- **Task Kanban Board** — drag & drop tasks between columns:
-  - To Do → Doing → Done
-  - Effort estimates per task (30m → 1 week)
-  - Auto-updating progress bar
 - **Copilot Chat** — per-project AI assistant with:
   - Project context awareness (title, notes, blueprint)
   - Natural language Q&A about the project
   - Chat history saved per project
+- **Task Kanban Board** — drag & drop tasks between columns:
+  - To Do → Doing → Done
+  - Effort estimates per task (30m → 1 week)
+  - Auto-updating progress bar
+  - Auto-populate tasks from blueprint generation
 - **Automatic Migration** — v1 ideas are seamlessly migrated to v2 projects
 - **New Tabbed Modal Interface** — Project, Blueprint, Tasks, Copilot tabs
 - **Voice Input** — speech-to-text for project title (Chrome on Android)
