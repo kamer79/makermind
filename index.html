@@ -75,7 +75,7 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
     
     /* ── TABS INSIDE MODAL ── */
-    .modal-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .modal-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; }
     .modal-tab { padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: inherit; background: transparent; border-top: none; border-left: none; border-right: none; }
     .modal-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
     .tab-pane { display: none; }
@@ -156,6 +156,11 @@
     .api-key-label { font-size: 10px; color: var(--text3); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
     .link-doc { font-size: 11px; color: var(--blue); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
     .link-doc:hover { text-decoration: underline; }
+    
+    /* ── RAG UPLOAD AREA ── */
+    #upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    #upload-area:hover { border-color: var(--amber); background: rgba(245, 158, 11, 0.03); }
+    #upload-area.dragover { border-color: var(--amber); background: rgba(245, 158, 11, 0.08); }
   </style>
 </head>
 <body>
@@ -246,15 +251,16 @@
       <div class="about-app-name">MakerMind 2.0</div>
       <div style="font-size:13px;color:var(--text3);margin-top:4px;">AI Project Copilot for Makers &amp; Builders</div>
       <div class="about-motto">Build. Break. Learn.</div>
-      <div class="about-version">v2.1.0</div>
+      <div class="about-version">v2.2.0</div>
     </div>
     <div class="about-card">
       <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
-        <div style="font-size:13px;font-weight:700;color:var(--amber);">What's New in v2.1.0</div>
+        <div style="font-size:13px;font-weight:700;color:var(--amber);">What's New in v2.2.0</div>
         <div style="font-size:12px;color:var(--text2);margin-top:6px;line-height:1.8;">
-          • Shimmy Setup Guide — complete documentation for local LLMs<br>
-          • Test Connection button in Settings → AI Engine<br>
-          • Updated README with Shimmy quick start
+          • RAG Knowledge Base — upload documents for context-aware AI<br>
+          • Local embeddings with Transformers.js (100% private)<br>
+          • Knowledge tab in project modal<br>
+          • Copilot answers with context from your documents
         </div>
       </div>
       <div style="padding:14px 16px;">
@@ -300,6 +306,7 @@
       <button class="modal-tab active" data-tab="tab-project" onclick="switchTab('tab-project')">Project</button>
       <button class="modal-tab" data-tab="tab-blueprint" onclick="switchTab('tab-blueprint')">Blueprint</button>
       <button class="modal-tab" data-tab="tab-tasks" onclick="switchTab('tab-tasks')">Tasks</button>
+      <button class="modal-tab" data-tab="tab-knowledge" onclick="switchTab('tab-knowledge')">📚 Knowledge</button>
       <button class="modal-tab" data-tab="tab-copilot" onclick="switchTab('tab-copilot')">Copilot</button>
     </div>
 
@@ -368,6 +375,40 @@
       <div id="kanban-container"></div>
     </div>
 
+    <!-- Tab: Knowledge (RAG) -->
+    <div class="tab-pane" id="tab-knowledge">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.6;">
+        Upload datasheets, notes, or previous project files. MakerMind will use them to give you better answers in Copilot.
+      </div>
+      
+      <!-- Upload area -->
+      <div id="upload-area" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" onclick="document.getElementById('file-input').click()">
+        <div style="font-size:32px;margin-bottom:8px;">📄</div>
+        <div style="font-size:13px;color:var(--text);font-weight:500;">Drop files here or click to upload</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Supports TXT, MD files (PDF coming soon)</div>
+        <input type="file" id="file-input" accept=".txt,.md" multiple style="display:none;" onchange="handleFileUpload(event)" />
+      </div>
+      
+      <!-- Upload status -->
+      <div id="upload-status" style="font-size:12px;color:var(--text3);margin-top:8px;"></div>
+      
+      <!-- Document list -->
+      <div style="margin-top:16px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Uploaded Documents</div>
+        <div id="document-list" style="display:flex;flex-direction:column;gap:6px;">
+          <div style="color:var(--text3);font-size:12px;">No documents uploaded yet.</div>
+        </div>
+      </div>
+      
+      <!-- RAG status indicator -->
+      <div style="margin-top:16px;padding:10px 14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+          <span style="color:var(--text3);">🧠 Knowledge Base Status</span>
+          <span id="rag-status" style="color:var(--text3);">Loading…</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Tab: Copilot -->
     <div class="tab-pane" id="tab-copilot">
       <div id="chat-messages" style="background:var(--surface2);border-radius:11px;padding:12px;height:200px;overflow-y:auto;font-size:13px;line-height:1.6;border:1px solid var(--border);"></div>
@@ -388,6 +429,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="js/kanban.js"></script>
+<script src="js/rag.js"></script>
 
 <script>
 // ─────────────────────────────────────────────────────────────
@@ -395,7 +437,7 @@
 // ─────────────────────────────────────────────────────────────
 
 // ── CONSTANTS ──
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "2.2.0";
 const STORAGE_KEY = "mm-projects-v2";
 const LEGACY_KEY = "mm-ideas-v1";
 const AI_ENGINE_KEY = "mm-ai-engine";
@@ -535,12 +577,13 @@ function openModal() {
   document.getElementById("blueprint-output").style.display = "none";
   document.getElementById("blueprint-output").innerHTML = "";
   document.getElementById("bp-status").textContent = "Tap 'Generate Blueprint' to create a structured project plan.";
-  document.getElementById("task-list").innerHTML = "";
   document.getElementById("chat-messages").innerHTML = "";
   document.getElementById("delete-btn").style.display = "none";
   document.getElementById("save-btn").textContent = "Save Project";
   const container = document.getElementById("kanban-container");
   if (container) container.innerHTML = '';
+  document.getElementById("upload-status").textContent = '';
+  document.getElementById("rag-status").textContent = 'Loading…';
   switchTab("tab-project");
   document.getElementById("overlay").classList.add("open");
 }
@@ -563,6 +606,8 @@ function openEditModal(id) {
   renderBlueprint();
   renderKanban(tasks);
   renderChat();
+  renderDocumentList();
+  initRAG();
   switchTab("tab-project");
   document.getElementById("overlay").classList.add("open");
 }
@@ -603,6 +648,10 @@ function saveProject() {
 
 function deleteCurrentProject() {
   if (!editingId || !confirm("Delete this project?")) return;
+  // Also delete RAG documents
+  if (window.RAG) {
+    window.RAG.deleteAll(editingId).catch(() => {});
+  }
   projects = projects.filter(p => p.id !== editingId);
   persist();
   renderProjects();
@@ -826,14 +875,26 @@ async function sendChat() {
   input.value = "";
   renderChat();
   
+  // ── RAG ENHANCEMENT ──
+  let ragContext = '';
+  if (editingId && window.RAG) {
+    try {
+      const context = await window.RAG.getContext(editingId, msg);
+      if (context) ragContext = context;
+    } catch (e) {
+      console.warn('RAG search failed:', e);
+    }
+  }
+  
   const context = document.getElementById("f-title").value.trim() || "Project";
   const notes = document.getElementById("f-notes").value.trim() || "";
   const prompt = `You are an AI copilot for a maker project.
 Project: "${context}"
 ${notes ? "Description: " + notes : ""}
 ${blueprintText ? "Blueprint: " + blueprintText : ""}
+${ragContext ? ragContext : ""}
 User question: "${msg}"
-Answer helpfully, concisely, and practically.`;
+Answer helpfully, concisely, and practically. ${ragContext ? 'Use the provided knowledge base context when relevant.' : ''}`;
 
   try {
     const reply = await callAI(prompt);
@@ -960,6 +1021,137 @@ function resetDefaults() {
   localStorage.setItem(STATUSES_KEY, JSON.stringify(statuses));
   renderSettings();
   showToast("Defaults restored ✓");
+}
+
+// ── RAG KNOWLEDGE BASE ──
+let ragInitialized = false;
+
+async function initRAG() {
+  if (ragInitialized) return;
+  try {
+    if (typeof transformers === 'undefined') {
+      await loadTransformersIfNeeded();
+    }
+    ragInitialized = true;
+    const statusEl = document.getElementById('rag-status');
+    if (statusEl) {
+      statusEl.textContent = '✅ Ready';
+      statusEl.style.color = 'var(--green)';
+    }
+  } catch (e) {
+    const statusEl = document.getElementById('rag-status');
+    if (statusEl) {
+      statusEl.textContent = '⚠️ Loading… retry on upload';
+      statusEl.style.color = 'var(--amber)';
+    }
+  }
+}
+
+function loadTransformersIfNeeded() {
+  return new Promise((resolve, reject) => {
+    if (typeof transformers !== 'undefined') { resolve(); return; }
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.11.0/dist/transformers.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Transformers.js'));
+    document.head.appendChild(script);
+  });
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  document.getElementById('upload-area').classList.add('dragover');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-area').classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length) processFiles(files);
+}
+
+async function handleFileUpload(e) {
+  const files = e.target.files;
+  if (files.length) processFiles(files);
+  e.target.value = '';
+}
+
+async function processFiles(files) {
+  if (!editingId) { showToast('Save the project first'); return; }
+  
+  const rag = window.RAG;
+  if (!rag) { showToast('RAG engine not loaded'); return; }
+  
+  await initRAG();
+  
+  const status = document.getElementById('upload-status');
+  let processed = 0;
+  let failed = 0;
+  
+  for (const file of files) {
+    try {
+      status.textContent = `Processing: ${file.name}…`;
+      const text = await readFileAsText(file);
+      await rag.addDocument(editingId, file.name, text);
+      processed++;
+    } catch (e) {
+      console.error('Upload failed:', e);
+      failed++;
+    }
+  }
+  
+  status.textContent = `✅ ${processed} document(s) uploaded, ${failed} failed`;
+  renderDocumentList();
+  showToast(`${processed} document(s) uploaded ✓`);
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+async function renderDocumentList() {
+  if (!editingId) return;
+  const container = document.getElementById('document-list');
+  const rag = window.RAG;
+  if (!rag) { container.innerHTML = '<div style="color:var(--text3);font-size:12px;">RAG engine not ready</div>'; return; }
+  
+  try {
+    const docs = await rag.getDocuments(editingId);
+    if (!docs.length) {
+      container.innerHTML = '<div style="color:var(--text3);font-size:12px;">No documents uploaded yet.</div>';
+      return;
+    }
+    
+    container.innerHTML = docs.map(doc => `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;">📝</span>
+          <div>
+            <div style="font-size:13px;color:var(--text);">${esc(doc.fileName)}</div>
+            <div style="font-size:10px;color:var(--text3);">${doc.chunks.length} chunks · ${new Date(doc.uploadedAt).toLocaleDateString()}</div>
+          </div>
+        </div>
+        <button onclick="deleteRAGDocument('${doc.id}')" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:14px;">✕</button>
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = '<div style="color:var(--red);font-size:12px;">Error loading documents</div>';
+  }
+}
+
+async function deleteRAGDocument(docId) {
+  if (!confirm('Delete this document?')) return;
+  const rag = window.RAG;
+  if (!rag) return;
+  await rag.deleteDocument(docId);
+  renderDocumentList();
+  showToast('Document deleted');
 }
 
 // ── TICKER ──
