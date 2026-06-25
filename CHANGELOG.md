@@ -12,17 +12,18 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 ## [v2.3.0] — 2026-06-25
 
 ### Added
-- **Export Data** — export all projects in three formats:
-  - 📄 JSON — full project data (backup, migration)
-  - 📝 Markdown — human-readable project summaries
-  - 📊 CSV — task lists for spreadsheets
+- **Export Full Data** — JSON with all projects, blueprint, tasks, copilot chat, resources
+- **Import Backup** — restore projects from JSON backup file
+- **Markdown Export** — human-readable project summaries with blueprint and chat
+- **CSV Export** — task lists for spreadsheets
 - **Update Check Restored** — "Check for Update" button in About page
 - **Service Worker Updates** — automatic notification when new version is available
-- **Settings Improvements** — new Export Data section
+- **Import Modal** — drag & drop or click to upload JSON backup
 
 ### Changed
 - About page now shows v2.3.0 with update check button
-- Version notes system restored for update notifications
+- Settings → Data Backup & Restore section added
+- Full export includes all project data (blueprint, tasks, copilot chat)
 
 ---
 ## [v2.2.0] — 2026-06-25
