@@ -9,6 +9,22 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 - **X.Y.Z** Patch — bug fix, text tweak, style change (not logged)
 
 ---
+## [v2.3.0] — 2026-06-25
+
+### Added
+- **Export Data** — export all projects in three formats:
+  - 📄 JSON — full project data (backup, migration)
+  - 📝 Markdown — human-readable project summaries
+  - 📊 CSV — task lists for spreadsheets
+- **Update Check Restored** — "Check for Update" button in About page
+- **Service Worker Updates** — automatic notification when new version is available
+- **Settings Improvements** — new Export Data section
+
+### Changed
+- About page now shows v2.3.0 with update check button
+- Version notes system restored for update notifications
+
+---
 ## [v2.2.0] — 2026-06-25
 
 ### Added
