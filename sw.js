@@ -1,5 +1,5 @@
-const CACHE = "makermind-v2.0-alpha1";
-const VERSION = "2.0.0-alpha1";
+const CACHE = "makermind-v2.3.0";
+const VERSION = "2.3.0";
 const ASSETS = [
   "/makermind/",
   "/makermind/index.html",
