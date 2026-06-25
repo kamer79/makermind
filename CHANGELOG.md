@@ -10,6 +10,20 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 
 ---
 
+## [v2.1.0] — 2026-06-25
+
+### Added
+- **Shimmy Setup Guide** — complete documentation for running local LLMs offline (`SHIMMY_SETUP.md`)
+- **Shimmy Test Connection** — one-click test button in Settings → AI Engine
+- **README.md** — Shimmy section with quick start and link to full guide
+
+### Changed
+- Settings → AI Engine → Shimmy section now includes a "Test Connection" button
+- Settings → AI Engine → Shimmy section now includes a link to the setup guide
+- About page version updated to v2.1.0
+
+---
+
 ## [v2.0.0] — 2026-06-24
 
 ### Major — Complete Rewrite: MakerMind 2.0
@@ -21,7 +35,7 @@ MakerMind is reborn as an **AI Project Copilot for Makers & Builders**.
 - **New Project Schema** with structured fields:
   - Project details: title, category, status, notes, tags
   - Blueprint: summary, hardware, software, risks, milestones, first tasks
-  - Tasks: basic task list (initial version)
+  - Tasks: with status tracking (To Do / Doing / Done) and effort estimates
   - Resources: parts, tools, components list
   - Chat: Copilot conversation history per project
 - **5 AI Engines** with flexible selection:
@@ -42,15 +56,15 @@ MakerMind is reborn as an **AI Project Copilot for Makers & Builders**.
   - Risks (potential issues to watch for)
   - Resources (suggested components, tutorials, similar projects)
   - Health Check (complexity score, completeness score, missing items)
-- **Copilot Chat** — per-project AI assistant with:
-  - Project context awareness (title, notes, blueprint)
-  - Natural language Q&A about the project
-  - Chat history saved per project
 - **Task Kanban Board** — drag & drop tasks between columns:
   - To Do → Doing → Done
   - Effort estimates per task (30m → 1 week)
   - Auto-updating progress bar
   - Auto-populate tasks from blueprint generation
+- **Copilot Chat** — per-project AI assistant with:
+  - Project context awareness (title, notes, blueprint)
+  - Natural language Q&A about the project
+  - Chat history saved per project
 - **Automatic Migration** — v1 ideas are seamlessly migrated to v2 projects
 - **New Tabbed Modal Interface** — Project, Blueprint, Tasks, Copilot tabs
 - **Voice Input** — speech-to-text for project title (Chrome on Android)
