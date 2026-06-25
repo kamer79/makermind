@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MakerMind 2.0 Alpha</title>
+  <title>MakerMind 2.0</title>
   <meta name="description" content="AI Project Copilot for Makers & Builders" />
   <meta name="theme-color" content="#0a0a0f" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -91,6 +91,9 @@
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-ghost { background: transparent; color: var(--text3); border: 1px solid var(--border); border-radius: 10px; padding: 11px 15px; font-size: 13px; cursor: pointer; font-family: inherit; }
     .btn-blueprint { background: linear-gradient(135deg, var(--amber), #d97706); color: #0a0a0f; font-weight: 700; border-radius: 10px; padding: 9px 15px; font-size: 12px; border: none; cursor: pointer; font-family: inherit; }
+    .btn-save-key { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-test { background: var(--green); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-test:hover { opacity: 0.85; }
     .modal-footer { display: flex; gap: 9px; margin-top: 22px; align-items: center; }
     .btn-delete { background: transparent; color: var(--red); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 10px; padding: 11px 13px; font-size: 12px; cursor: pointer; font-family: inherit; margin-right: auto; }
     
@@ -150,7 +153,9 @@
     .api-key-wrap { display: flex; gap: 8px; align-items: center; }
     .api-key-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; color: var(--text); font-family: inherit; font-size: 13px; outline: none; }
     .api-key-input:focus { border-color: var(--blue); }
-    .btn-save-key { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .api-key-label { font-size: 10px; color: var(--text3); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .link-doc { font-size: 11px; color: var(--blue); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+    .link-doc:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -216,7 +221,11 @@
             <input class="api-key-input" id="settings-shimmy-url" type="text" placeholder="http://localhost:8080/v1" />
             <button class="btn-save-key" onclick="saveShimmyUrl()">Save</button>
           </div>
-          <div style="font-size:11px;margin-top:8px;color:var(--text3);">Download Shimmy at github.com/shimmy-rs/shimmy</div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+            <button class="btn-test" onclick="testShimmyConnection()">🔌 Test Connection</button>
+            <a href="SHIMMY_SETUP.md" target="_blank" class="link-doc">📖 Setup Guide →</a>
+          </div>
+          <div id="shimmy-test-result" style="font-size:11px;margin-top:8px;color:var(--text3);"></div>
         </div>
       </div>
     </div>
@@ -237,17 +246,15 @@
       <div class="about-app-name">MakerMind 2.0</div>
       <div style="font-size:13px;color:var(--text3);margin-top:4px;">AI Project Copilot for Makers &amp; Builders</div>
       <div class="about-motto">Build. Break. Learn.</div>
-      <div class="about-version">v2.0.0-alpha1</div>
+      <div class="about-version">v2.1.0</div>
     </div>
     <div class="about-card">
       <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
-        <div style="font-size:13px;font-weight:700;color:var(--amber);">What's New in v2.0</div>
+        <div style="font-size:13px;font-weight:700;color:var(--amber);">What's New in v2.1.0</div>
         <div style="font-size:12px;color:var(--text2);margin-top:6px;line-height:1.8;">
-          • Projects instead of Ideas<br>
-          • Structured Project Blueprint<br>
-          • 5 AI engines: Pollinations, OpenRouter, Shimmy, Gemini, Claude<br>
-          • New tabs: Project, Blueprint, Tasks, Copilot<br>
-          • Automatic migration from v1
+          • Shimmy Setup Guide — complete documentation for local LLMs<br>
+          • Test Connection button in Settings → AI Engine<br>
+          • Updated README with Shimmy quick start
         </div>
       </div>
       <div style="padding:14px 16px;">
@@ -384,11 +391,11 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────
-// MAKERMIND 2.0 ALPHA — MAIN APPLICATION
+// MAKERMIND 2.0 — MAIN APPLICATION
 // ─────────────────────────────────────────────────────────────
 
 // ── CONSTANTS ──
-const APP_VERSION = "2.0.0-alpha1";
+const APP_VERSION = "2.1.0";
 const STORAGE_KEY = "mm-projects-v2";
 const LEGACY_KEY = "mm-ideas-v1";
 const AI_ENGINE_KEY = "mm-ai-engine";
@@ -532,7 +539,6 @@ function openModal() {
   document.getElementById("chat-messages").innerHTML = "";
   document.getElementById("delete-btn").style.display = "none";
   document.getElementById("save-btn").textContent = "Save Project";
-  // Clear kanban container
   const container = document.getElementById("kanban-container");
   if (container) container.innerHTML = '';
   switchTab("tab-project");
@@ -564,7 +570,6 @@ function openEditModal(id) {
 function closeModal() {
   document.getElementById("overlay").classList.remove("open");
   stopVoice();
-  // Clear kanban container
   const container = document.getElementById("kanban-container");
   if (container) container.innerHTML = '';
 }
@@ -676,7 +681,6 @@ Be practical and specific. Keep each section concise.`;
     renderBlueprint();
     document.getElementById("bp-status").textContent = "Blueprint generated ✓";
     
-    // Auto-populate tasks from blueprint
     const taskMatch = result.match(/## First Tasks\n([\s\S]*?)(?=\n##|$)/);
     if (taskMatch) {
       const taskLines = taskMatch[1].split('\n').filter(line => line.trim().startsWith('-'));
@@ -907,6 +911,37 @@ function saveApiKey() {
 function saveShimmyUrl() {
   const val = document.getElementById("settings-shimmy-url").value.trim();
   if (val) { shimmyUrl = val; localStorage.setItem(SHIMMY_URL_KEY, val); showToast("Shimmy URL saved ✓"); }
+}
+
+// ── SHIMMY TEST CONNECTION ──
+async function testShimmyConnection() {
+  const url = document.getElementById("settings-shimmy-url").value.trim() || shimmyUrl;
+  const resultEl = document.getElementById("shimmy-test-result");
+  
+  resultEl.textContent = "Testing connection…";
+  resultEl.style.color = "var(--text3)";
+  
+  try {
+    const res = await fetch(url + "/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer dummy" },
+      body: JSON.stringify({
+        model: "local",
+        messages: [{ role: "user", content: "Hello, this is a test. Reply with 'OK'." }],
+        max_tokens: 10
+      })
+    });
+    
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content || "No response";
+    
+    resultEl.textContent = "✅ Connected! Shimmy replied: " + reply.slice(0, 50) + (reply.length > 50 ? "…" : "");
+    resultEl.style.color = "var(--green)";
+  } catch (e) {
+    resultEl.textContent = "❌ Connection failed: " + e.message + ". Is Shimmy running at " + url + "?";
+    resultEl.style.color = "var(--red)";
+  }
 }
 
 function clearAllProjects() {
