@@ -1,6 +1,6 @@
-const CACHE   = "makermind-v2.0.0-alpha1";
-const VERSION = "2.0.0-alpha1";
-const ASSETS  = [
+const CACHE = "makermind-v2.3.0";
+const VERSION = "2.3.0";
+const ASSETS = [
   "/makermind/",
   "/makermind/index.html",
   "/makermind/manifest.json",
@@ -30,7 +30,7 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   const url = e.request.url;
-  if(url.includes("anthropic.com")||url.includes("groq.com")||url.includes("googleapis.com")||url.includes("pollinations.ai")||url.includes("fonts.")){
+  if(url.includes("anthropic.com") || url.includes("generativelanguage.googleapis.com") || url.includes("pollinations.ai") || url.includes("openrouter.ai") || url.includes("fonts.")) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
