@@ -9,6 +9,19 @@ Format: `[vX.Y.Z] — YYYY-MM-DD`
 - **X.Y.Z** Patch — bug fix, text tweak, style change (not logged)
 
 ---
+## [v2.2.0] — 2026-06-25
+
+### Added
+- **RAG Knowledge Base** — upload documents (PDF, TXT, MD) for context-aware AI
+- **Local Embeddings** — using Transformers.js (all local, no API calls)
+- **Semantic Search** — find relevant document chunks based on your questions
+- **Knowledge Tab** — new tab in project modal for document management
+- **RAG-Enhanced Copilot** — AI answers with context from your uploaded documents
+- **Document Management** — upload, list, and delete documents per project
+
+### Changed
+- Copilot chat now uses RAG context when available
+- Knowledge Base status indicator in project modal
 
 ## [v2.1.0] — 2026-06-25
 
