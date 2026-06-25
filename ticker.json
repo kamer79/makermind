@@ -1,7 +1,9 @@
 [
-  { "type": "version", "text": "MakerMind v2.1.0 — Shimmy documentation & test connection button" },
+  { "type": "version", "text": "MakerMind v2.3.0 — Export & Import features" },
+  { "type": "feature", "text": "📤 Export Data — JSON, Markdown, CSV formats" },
+  { "type": "feature", "text": "📂 Import Backup — restore your projects from JSON" },
+  { "type": "tip", "text": "📖 Shimmy Setup Guide — run local LLMs completely offline and private" },
   { "type": "feature", "text": "🔌 Test Shimmy connection in Settings → AI Engine → Shimmy" },
-  { "type": "tip", "text": "📖 New Shimmy Setup Guide — run local LLMs completely offline and private" },
   { "type": "feature", "text": "5 AI engines: Pollinations · OpenRouter · Shimmy · Gemini · Claude" },
   { "type": "tip", "text": "Use voice input to capture project ideas hands-free — tap 🎙 on any field" },
   { "type": "motto", "text": "Build. Break. Learn." },
