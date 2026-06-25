@@ -1,11 +1,21 @@
 [
-  { "type": "tip", "text": "Generate a Project Blueprint — AI creates a structured plan for your build" },
-  { "type": "feature", "text": "v2.0-alpha1: Projects, Blueprint, Tasks, Copilot — all new" },
+  { "type": "version", "text": "MakerMind v2.1.0 — Shimmy documentation & test connection button" },
+  { "type": "feature", "text": "🔌 Test Shimmy connection in Settings → AI Engine → Shimmy" },
+  { "type": "tip", "text": "📖 New Shimmy Setup Guide — run local LLMs completely offline and private" },
+  { "type": "feature", "text": "5 AI engines: Pollinations · OpenRouter · Shimmy · Gemini · Claude" },
+  { "type": "tip", "text": "Use voice input to capture project ideas hands-free — tap 🎙 on any field" },
   { "type": "motto", "text": "Build. Break. Learn." },
-  { "type": "tip", "text": "Switch AI engines in Settings — Pollinations, OpenRouter, Shimmy, Gemini, Claude" },
   { "type": "use", "text": "Perfect for Homelab, ESP32, Smart Home, Electronics, 3D Printing" },
   { "type": "ai", "text": "OpenRouter uses openrouter/free — auto-selects the best available free model" },
-  { "type": "community", "text": "Star us on GitHub — github.com/kamer79" },
+  { "type": "tip", "text": "Generate a Project Blueprint — AI creates a structured plan for your build" },
+  { "type": "feature", "text": "Kanban board — drag tasks between To Do, Doing, Done with effort estimates" },
   { "type": "tip", "text": "Copilot chat can answer questions about your project using AI" },
-  { "type": "feature", "text": "Tasks tab — track what needs to be done for each project" }
+  { "type": "community", "text": "Star us on GitHub — github.com/kamer79" },
+  { "type": "tip", "text": "Run Shimmy locally: download from github.com/shimmy-rs/shimmy" },
+  { "type": "use", "text": "Track your projects from idea to execution with MakerMind" },
+  { "type": "ai", "text": "Try Project Analysis — AI gives you tips, risks, resources, and health check" },
+  { "type": "tip", "text": "Add tasks with effort estimates — 30m, 1h, 2h, 4h, 1d, 2d, 1w" },
+  { "type": "community", "text": "Support the project — paypal.me/KarimAmer914 ☕" },
+  { "type": "tip", "text": "Customise categories and statuses in Settings to fit your workflow" },
+  { "type": "feature", "text": "Automatic migration from v1 — your old ideas become v2 projects" }
 ]
